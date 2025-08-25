@@ -13,7 +13,25 @@ class CSStrategyBoard {
         this.redoStack = [];
         this.isConnected = false;
         this.realtimeSync = new RealtimeSync();
-        this.isAdmin = false;
+        
+        // 道具数量限制
+        this.itemCounts = {
+            smoke: 0,
+            fire: 0,
+            grenade: 0,
+            flash: 0,
+            playerT: 0,
+            playerCT: 0
+        };
+        
+        this.maxCounts = {
+            smoke: 5,
+            fire: 5,
+            grenade: 5,
+            flash: 10,
+            playerT: 5,
+            playerCT: 5
+        };
         
         // 画布相关
         this.canvas = null;
@@ -104,6 +122,20 @@ class CSStrategyBoard {
             console.log('✅ 离开房间按钮事件绑定成功');
         }
         
+        // 用户列表按钮
+        const userListBtn = document.getElementById('userListBtn');
+        if (userListBtn) {
+            userListBtn.addEventListener('click', () => this.showUserList());
+            console.log('✅ 用户列表按钮事件绑定成功');
+        }
+        
+        // 关闭用户列表按钮
+        const closeUserListBtn = document.getElementById('closeUserListBtn');
+        if (closeUserListBtn) {
+            closeUserListBtn.addEventListener('click', () => this.hideUserList());
+            console.log('✅ 关闭用户列表按钮事件绑定成功');
+        }
+        
         // 工具栏
         const toolBtns = document.querySelectorAll('.tool-btn');
         console.log(`找到 ${toolBtns.length} 个工具按钮`);
@@ -148,18 +180,13 @@ class CSStrategyBoard {
         }
         
         try {
-            // 检查是否为admin
-            this.isAdmin = username.toLowerCase() === 'admin';
-            
             this.currentUser = {
                 id: this.generateId(),
                 name: username,
-                isAdmin: this.isAdmin,
                 joinTime: Date.now()
             };
             
             console.log('用户信息:', this.currentUser);
-            console.log('是否为管理员:', this.isAdmin);
             
             // 添加用户到房间
             this.addUserToRoom();
@@ -169,15 +196,12 @@ class CSStrategyBoard {
             this.updateRoomInfo();
             this.initCanvasEvents();
             this.loadMapImage();
-            this.addTooltips();
-            this.updateToolbarPermissions();
             
             // 启用实时同步
             this.realtimeSync.enable(this.roomId, this.currentUser.id);
             
             // 显示成功通知
-            const roleText = this.isAdmin ? '（管理员）' : '（观看者）';
-            this.showNotification(`成功进入战术室 ${roleText}`, 'success');
+            this.showNotification('成功进入战术室', 'success');
             
             console.log('成功进入战术室');
         } catch (error) {
@@ -224,7 +248,6 @@ class CSStrategyBoard {
         
         this.realtimeSync.disable();
         this.currentUser = null;
-        this.isAdmin = false;
         this.shapes = [];
         this.users.clear();
         
@@ -235,14 +258,6 @@ class CSStrategyBoard {
     // 更新房间信息显示
     updateRoomInfo() {
         document.getElementById('currentUser').textContent = `用户: ${this.currentUser.name}`;
-        const roleEl = document.getElementById('userRole');
-        if (this.isAdmin) {
-            roleEl.textContent = '[管理员]';
-            roleEl.style.color = '#ff6b6b';
-        } else {
-            roleEl.textContent = '[观看者]';
-            roleEl.style.color = '#888';
-        }
         this.updateUserCount();
     }
     
@@ -250,6 +265,97 @@ class CSStrategyBoard {
     updateUserCount() {
         const count = this.users.size;
         document.getElementById('userCountDisplay').textContent = `在线用户: ${count}`;
+    }
+    
+    // 显示用户列表
+    showUserList() {
+        document.getElementById('userListModal').classList.remove('hidden');
+        this.updateUsersList();
+    }
+    
+    // 隐藏用户列表
+    hideUserList() {
+        document.getElementById('userListModal').classList.add('hidden');
+    }
+    
+    // 更新用户列表显示
+    updateUsersList() {
+        const usersList = document.getElementById('usersList');
+        if (!usersList) return;
+        
+        usersList.innerHTML = '';
+        
+        this.users.forEach(user => {
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'user-avatar';
+            avatar.textContent = user.name.charAt(0).toUpperCase();
+            
+            const name = document.createElement('div');
+            name.className = 'user-name';
+            name.textContent = user.name;
+            
+            userItem.appendChild(avatar);
+            userItem.appendChild(name);
+            usersList.appendChild(userItem);
+        });
+    }
+    
+    // 检查道具数量限制
+    canAddItem(type) {
+        const currentCount = this.itemCounts[type] || 0;
+        const maxCount = this.maxCounts[type] || 0;
+        
+        if (currentCount >= maxCount) {
+            const itemNames = {
+                smoke: '烟雾弹',
+                fire: '燃烧弹',
+                grenade: '手雷',
+                flash: '闪光弹',
+                playerT: 'T队员',
+                playerCT: 'CT队员'
+            };
+            
+            this.showNotification(`${itemNames[type]}数量已达上限(${maxCount}个)`, 'error');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // 更新道具数量
+    updateItemCount(type, delta = 1) {
+        if (!this.itemCounts.hasOwnProperty(type)) return;
+        
+        this.itemCounts[type] = Math.max(0, this.itemCounts[type] + delta);
+        this.syncData();
+    }
+    
+    // 重新计算道具数量
+    recalculateItemCounts() {
+        // 重置所有计数
+        Object.keys(this.itemCounts).forEach(key => {
+            this.itemCounts[key] = 0;
+        });
+        
+        // 重新计算
+        this.shapes.forEach(shape => {
+            if (shape.type === 'player') {
+                const playerType = `player${shape.side}`;
+                if (this.itemCounts.hasOwnProperty(playerType)) {
+                    this.itemCounts[playerType]++;
+                }
+            } else if (this.itemCounts.hasOwnProperty(shape.type)) {
+                this.itemCounts[shape.type]++;
+            }
+        });
+    }
+    
+    // 同步数据
+    syncData() {
+        this.syncToRoom();
     }
     
     // 初始化画布事件
@@ -344,99 +450,8 @@ class CSStrategyBoard {
         img.src = this.maps[this.currentMap] || this.maps['de_dust2'];
     }
     
-    // 添加工具提示
-    addTooltips() {
-        const toolButtons = {
-            'move': '移动工具 (1)',
-            'playerT': '放置T队员 (2)',
-            'playerCT': '放置CT队员 (3)',
-            'line': '画线工具 (4)',
-            'smoke': '烟雾弹 (5)',
-            'flash': '闪光弹 (6)',
-            'fire': '燃烧弹 (7)',
-            'grenade': '手雷 (8)',
-            'text': '文本工具 (9)',
-            'erase': '橡皮擦工具 (0)'
-        };
-        
-        Object.keys(toolButtons).forEach(tool => {
-            const btn = document.querySelector(`[data-tool="${tool}"]`);
-            if (btn) {
-                btn.setAttribute('data-tooltip', toolButtons[tool]);
-                btn.classList.add('tooltip');
-            }
-        });
-    }
-    
-    // 更新工具栏权限
-    updateToolbarPermissions() {
-        const toolBtns = document.querySelectorAll('.tool-btn');
-        const mapSelect = document.getElementById('mapSelect');
-        const clearAllBtn = document.getElementById('clearAllBtn');
-        const exportBtn = document.getElementById('exportBtn');
-        
-        if (this.isAdmin) {
-            // 管理员可以使用所有工具
-            toolBtns.forEach(btn => {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-            });
-            
-            if (mapSelect) {
-                mapSelect.disabled = false;
-                mapSelect.style.opacity = '1';
-            }
-            
-            if (clearAllBtn) {
-                clearAllBtn.disabled = false;
-                clearAllBtn.style.opacity = '1';
-            }
-        } else {
-            // 观看者只能移动和导出
-            toolBtns.forEach(btn => {
-                const tool = btn.dataset.tool;
-                if (tool === 'move') {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                } else {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.3';
-                    btn.style.cursor = 'not-allowed';
-                }
-            });
-            
-            if (mapSelect) {
-                mapSelect.disabled = true;
-                mapSelect.style.opacity = '0.3';
-            }
-            
-            if (clearAllBtn) {
-                clearAllBtn.disabled = true;
-                clearAllBtn.style.opacity = '0.3';
-            }
-            
-            // 强制设置为移动工具
-            if (this.currentTool !== 'move') {
-                this.setTool('move');
-            }
-        }
-        
-        if (exportBtn) {
-            exportBtn.disabled = false;
-            exportBtn.style.opacity = '1';
-        }
-    }
-    
     // 设置工具
     setTool(tool) {
-        // 权限检查：非管理员只能使用移动工具
-        if (!this.isAdmin && tool !== 'move') {
-            this.showNotification('只有管理员才能使用编辑工具', 'warning');
-            return;
-        }
-        
         this.currentTool = tool;
         
         // 更新工具按钮状态
@@ -487,25 +502,23 @@ class CSStrategyBoard {
     
     // 切换地图
     changeMap(mapName) {
-        if (!this.isAdmin) {
-            this.showNotification('只有管理员才能切换地图', 'warning');
-            return;
-        }
-        
         this.currentMap = mapName;
+        
+        // 切换地图时清空所有内容
+        this.shapes = [];
+        this.recalculateItemCounts();
+        
         this.loadMapImage();
         this.syncMapToRoom();
+        
+        this.showNotification(`已切换到 ${mapName} 并清空所有内容`, 'success');
     }
     
     // 清空所有
     clearAll() {
-        if (!this.isAdmin) {
-            this.showNotification('只有管理员才能清空画布', 'warning');
-            return;
-        }
-        
         if (confirm('确定要清空所有内容吗？')) {
             this.shapes = [];
+            this.recalculateItemCounts();
             this.saveToHistory();
             this.redraw();
             this.syncToRoom();
@@ -597,13 +610,8 @@ class CSStrategyBoard {
                 userDiv.classList.add('self');
             }
             
-            // 添加角色标识
-            const roleText = user.isAdmin ? ' [管理员]' : ' [观看者]';
-            const roleClass = user.isAdmin ? 'admin' : 'viewer';
-            
             userDiv.innerHTML = `
                 <span class="username">${user.name}</span>
-                <span class="user-role ${roleClass}">${roleText}</span>
             `;
             
             usersList.appendChild(userDiv);
@@ -792,10 +800,6 @@ class CSStrategyBoard {
     
     // 工具操作处理
     handleToolAction(x, y, action) {
-        if (!this.isAdmin && this.currentTool !== 'move') {
-            return; // 非管理员只能移动
-        }
-        
         switch (this.currentTool) {
             case 'playerT':
             case 'playerCT':
@@ -827,6 +831,13 @@ class CSStrategyBoard {
     
     // 添加玩家
     addPlayer(x, y, side) {
+        const type = `player${side}`;
+        
+        // 检查数量限制
+        if (!this.canAddItem(type)) {
+            return;
+        }
+        
         const shape = {
             id: this.generateId(),
             type: 'player',
@@ -837,6 +848,7 @@ class CSStrategyBoard {
         };
         
         this.shapes.push(shape);
+        this.updateItemCount(type, 1);
         this.saveToHistory();
         this.redraw();
         this.syncToRoom();
@@ -885,6 +897,11 @@ class CSStrategyBoard {
     
     // 添加道具
     addGrenade(x, y, type) {
+        // 检查数量限制
+        if (!this.canAddItem(type)) {
+            return;
+        }
+        
         const shape = {
             id: this.generateId(),
             type: type,
@@ -894,6 +911,7 @@ class CSStrategyBoard {
         };
         
         this.shapes.push(shape);
+        this.updateItemCount(type, 1);
         this.saveToHistory();
         this.redraw();
         this.syncToRoom();
@@ -903,8 +921,10 @@ class CSStrategyBoard {
     eraseAt(x, y) {
         const eraseRadius = 30;
         
+        const originalLength = this.shapes.length;
         this.shapes = this.shapes.filter(shape => {
             let distance = 0;
+            let shouldKeep = true;
             
             switch (shape.type) {
                 case 'player':
@@ -913,18 +933,27 @@ class CSStrategyBoard {
                 case 'fire':
                 case 'grenade':
                     distance = Math.sqrt((shape.x - x) ** 2 + (shape.y - y) ** 2);
-                    return distance > eraseRadius;
+                    shouldKeep = distance > eraseRadius;
+                    break;
                     
                 case 'line':
                     // 对于线条，检查端点
                     const dist1 = Math.sqrt((shape.x1 - x) ** 2 + (shape.y1 - y) ** 2);
                     const dist2 = Math.sqrt((shape.x2 - x) ** 2 + (shape.y2 - y) ** 2);
-                    return dist1 > eraseRadius && dist2 > eraseRadius;
+                    shouldKeep = dist1 > eraseRadius && dist2 > eraseRadius;
+                    break;
                     
                 default:
-                    return true;
+                    shouldKeep = true;
             }
+            
+            return shouldKeep;
         });
+        
+        // 如果有元素被删除，重新计算道具数量
+        if (this.shapes.length !== originalLength) {
+            this.recalculateItemCounts();
+        }
         
         this.redraw();
         this.syncToRoom();

@@ -12,7 +12,7 @@
         <div class="login-container">
             <h1>CS战术板</h1>
             <div class="login-form">
-                <input type="text" id="usernameInput" placeholder="输入用户名 (admin为管理员)" maxlength="20">
+                <input type="text" id="usernameInput" placeholder="输入用户名" maxlength="20">
                 <div class="room-options">
                     <div class="room-option">
                         <button id="joinRoomBtn">进入战术室</button>
@@ -26,45 +26,54 @@
     <div id="mainScreen" class="screen hidden">
         <!-- 顶部信息栏 -->
         <div class="top-bar">
-            <div class="room-info">
+            <div class="top-info">
                 <span id="roomTitle">CS 战术室</span>
                 <span id="userCountDisplay">在线用户: 0</span>
-            </div>
-            <div class="user-info">
                 <span id="currentUser">用户: </span>
-                <span id="userRole"></span>
+                <button id="userListBtn">用户列表</button>
                 <button id="leaveRoomBtn">退出战术室</button>
             </div>
         </div>
 
         <!-- 工具栏 -->
         <div id="toolbar">
-            <div class="tool-group">
-                <label>地图:</label>
-                <select id="mapSelect">
-                    <option value="de_dust2">de_dust2</option>
-                    <option value="de_mirage">de_mirage</option>
-                    <option value="de_inferno">de_inferno</option>
-                </select>
+            <!-- 第一排：工具按钮 -->
+            <div class="toolbar-row">
+                <div class="tool-group">
+                    <label>工具:</label>
+                    <button class="tool-btn active" data-tool="move">移动</button>
+                    <button class="tool-btn" data-tool="playerT">T队员</button>
+                    <button class="tool-btn" data-tool="playerCT">CT队员</button>
+                    <button class="tool-btn" data-tool="line">画线</button>
+                    <button class="tool-btn grenade-btn" data-tool="smoke">💨 烟雾弹</button>
+                    <button class="tool-btn grenade-btn" data-tool="flash">⚡ 闪光弹</button>
+                    <button class="tool-btn grenade-btn" data-tool="fire">🔥 燃烧弹</button>
+                    <button class="tool-btn grenade-btn" data-tool="grenade">💣 手雷</button>
+                    <button class="tool-btn" data-tool="erase">橡皮擦</button>
+                </div>
             </div>
             
-            <div class="tool-group">
-                <label>工具:</label>
-                <button class="tool-btn active" data-tool="move">移动</button>
-                <button class="tool-btn" data-tool="playerT">T队员</button>
-                <button class="tool-btn" data-tool="playerCT">CT队员</button>
-                <button class="tool-btn" data-tool="line">画线</button>
-                <button class="tool-btn grenade-btn" data-tool="smoke">💨 烟雾弹</button>
-                <button class="tool-btn grenade-btn" data-tool="flash">⚡ 闪光弹</button>
-                <button class="tool-btn grenade-btn" data-tool="fire">🔥 燃烧弹</button>
-                <button class="tool-btn grenade-btn" data-tool="grenade">💣 手雷</button>
-                <button class="tool-btn" data-tool="erase">橡皮擦</button>
-            </div>
-
-            <div class="tool-group">
-                <label>操作:</label>
-                <button id="clearAllBtn">清空</button>
-                <button id="exportBtn">导出PNG</button>
+            <!-- 第二排：地图选择和操作 -->
+            <div class="toolbar-row">
+                <div class="tool-group">
+                    <label>地图:</label>
+                    <select id="mapSelect">
+                        <option value="de_dust2">de_dust2</option>
+                        <option value="de_mirage">de_mirage</option>
+                        <option value="de_inferno">de_inferno</option>
+                    </select>
+                </div>
+                
+                <div class="tool-group">
+                    <label>操作:</label>
+                    <button id="clearAllBtn">清空</button>
+                    <button id="exportBtn">导出PNG</button>
+                </div>
+                
+                <div class="tool-group">
+                    <span id="connectionStatus">连接状态: 离线</span>
+                    <span id="currentTool">当前工具: 移动</span>
+                </div>
             </div>
         </div>
 
@@ -78,10 +87,17 @@
             </div>
         </div>
 
-        <!-- 状态栏 -->
-        <div class="status-bar">
-            <span id="connectionStatus">连接状态: 离线</span>
-            <span id="currentTool">当前工具: 移动</span>
+        <!-- 用户列表弹窗 -->
+        <div id="userListModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>在线用户列表</h3>
+                    <button class="modal-close" id="closeUserListBtn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="usersList"></div>
+                </div>
+            </div>
         </div>
     </div>
 

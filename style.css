@@ -1,3 +1,8 @@
+:root {
+    --toolbar-height: 80px; /* 减小工具栏高度 */
+    --top-bar-height: 60px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -86,19 +91,26 @@ body {
     position: relative;
 }
 
-/* 顶部信息栏 */
+/* 统一容器宽度 */
+.top-bar, #toolbar, .main-content, .status-bar {
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+/* 顶部信息栏 - 合并信息，同比例缩放 */
 .top-bar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 999;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: 12px 24px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -106,58 +118,240 @@ body {
 }
 
 .top-bar:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
 }
 
-.room-info, .user-info {
+/* 合并所有信息到一个容器 - 强制单行显示 */
+.top-info {
     display: flex;
-    gap: 16px;
+    gap: 8px; /* 更紧凑的间距 */
     align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap; /* 强制不换行 */
+    transform-origin: center;
+    transition: transform 0.3s ease;
+    overflow-x: auto; /* 如果内容过宽则横向滚动 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    white-space: nowrap;
 }
 
-.room-info span, .user-info span {
+.top-info::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.top-info span {
     background: rgba(0, 122, 255, 0.1);
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 4px 8px; /* 更紧凑的内边距 */
+    border-radius: 6px;
     border: 1px solid rgba(0, 122, 255, 0.2);
-    font-size: 14px;
+    font-size: 12px; /* 更小的字体 */
     font-weight: 500;
     color: #1d1d1f;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* 不允许缩小 */
 }
 
-/* 苹果风格工具栏 */
+/* 退出按钮和用户列表按钮样式 - 紧凑样式 */
+#leaveRoomBtn, #userListBtn {
+    background: rgba(0, 122, 255, 0.1);
+    border: 1px solid rgba(0, 122, 255, 0.2);
+    color: #007aff;
+    padding: 4px 8px; /* 更紧凑的内边距 */
+    border-radius: 6px;
+    font-size: 12px; /* 更小的字体 */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0; /* 不允许缩小 */
+}
+
+#leaveRoomBtn {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    color: #ff3b30;
+}
+
+#leaveRoomBtn:hover {
+    background: rgba(255, 59, 48, 0.2);
+    border-color: rgba(255, 59, 48, 0.4);
+    transform: translateY(-1px);
+}
+
+#userListBtn:hover {
+    background: rgba(0, 122, 255, 0.2);
+    border-color: rgba(0, 122, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+/* 同比例缩放 - 保持单行显示 */
+@media (max-width: 1200px) {
+    .top-bar {
+        padding: 10px 20px;
+        height: 55px;
+    }
+    
+    .top-info {
+        gap: 6px;
+    }
+    
+    .top-info span, #leaveRoomBtn, #userListBtn {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}
+
+@media (max-width: 900px) {
+    .top-bar {
+        padding: 8px 16px;
+        height: 50px;
+    }
+    
+    .top-info {
+        gap: 5px;
+    }
+    
+    .top-info span, #leaveRoomBtn, #userListBtn {
+        font-size: 10px;
+        padding: 2px 5px;
+    }
+}
+
+@media (max-width: 600px) {
+    .top-bar {
+        padding: 6px 12px;
+        height: 45px;
+    }
+    
+    .top-info {
+        gap: 4px;
+    }
+    
+    .top-info span, #leaveRoomBtn, #userListBtn {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+}
+
+@media (max-width: 400px) {
+    .top-bar {
+        padding: 4px 8px;
+        height: 40px;
+    }
+    
+    .top-info {
+        gap: 3px;
+    }
+    
+    .top-info span, #leaveRoomBtn, #userListBtn {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+}
+
+/* 工具栏 - 固定在底部，宽度保持一致 */
 #toolbar {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
-    max-width: calc(100vw - 40px);
-    width: auto;
+    width: 100%;
+    max-width: 100vw;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 
+        0 -8px 32px rgba(0, 0, 0, 0.08),
+        0 -2px 16px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+}
+
+/* 调整canvas容器，为工具栏预留空间 */
+.canvas-container {
+    position: relative;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 16px;
-    padding: 12px 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
+        0 2px 16px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: calc(100% - 120px); /* 为工具栏预留空间 */
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.08),
-        0 2px 16px rgba(0, 0, 0, 0.04);
-    min-height: 56px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
 }
 
-#toolbar::-webkit-scrollbar {
-    display: none;
+/* 小屏幕下的调整 - 紧凑布局 */
+@media (max-width: 900px) {
+    :root {
+        --toolbar-height: 70px; /* 更紧凑的工具栏 */
+        --top-bar-height: 55px;
+    }
+    
+    #toolbar {
+        padding: 8px 10px;
+        gap: 4px;
+    }
+    
+    .toolbar-row:first-child .tool-btn {
+        padding: 3px 6px;
+        font-size: 9px;
+        min-width: 35px;
+        height: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --toolbar-height: 80px;
+        --top-bar-height: 45px;
+    }
+    
+    #toolbar {
+        padding: 6px 8px;
+        gap: 3px;
+    }
+    
+    .toolbar-row:first-child .tool-btn {
+        padding: 2px 4px;
+        font-size: 8px;
+        min-width: 30px;
+        height: 22px;
+    }
+}
+
+@media (max-width: 400px) {
+    :root {
+        --toolbar-height: 90px;
+        --top-bar-height: 40px;
+    }
+    
+    #toolbar {
+        padding: 4px 6px;
+        gap: 2px;
+    }
+    
+    .toolbar-row:first-child .tool-btn {
+        padding: 2px 3px;
+        font-size: 7px;
+        min-width: 28px;
+        height: 20px;
+    }
 }
 
 #toolbar:hover {
@@ -165,62 +359,205 @@ body {
     box-shadow: 
         0 12px 40px rgba(0, 0, 0, 0.12),
         0 4px 20px rgba(0, 0, 0, 0.06);
-    transform: translateX(-50%) translateY(-2px);
 }
 
+/* 工具栏行布局 - 第一排强制单行显示 */
+.toolbar-row:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    flex-wrap: nowrap; /* 强制不换行 */
+    overflow-x: auto; /* 如果内容过宽则横向滚动 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.toolbar-row:first-child::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* 第二排可以正常换行 */
+.toolbar-row:not(:first-child) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+/* 工具组 - 支持自适应换行 */
 .tool-group {
     display: flex;
     align-items: center;
-    gap: 8px;
-    white-space: nowrap;
+    justify-content: center;
+    gap: 6px;
     position: relative;
-    padding: 6px 12px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.02);
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.03);
     transition: all 0.2s ease;
+    min-width: fit-content;
     flex-shrink: 0;
-    margin: 0 4px;
+    flex-wrap: wrap; /* 允许按钮换行 */
+}
+
+/* 小屏幕下的响应式调整 */
+@media (max-width: 900px) {
+    .toolbar-row {
+        gap: 10px;
+    }
+    
+    .tool-group {
+        padding: 5px 8px;
+        gap: 5px;
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 600px) {
+    .toolbar-row {
+        gap: 8px;
+        flex-direction: column; /* 小屏幕下垂直堆叠 */
+    }
+    
+    .tool-group {
+        padding: 4px 6px;
+        gap: 4px;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 400px) {
+    .tool-group {
+        padding: 3px 5px;
+        gap: 3px;
+    }
 }
 
 .tool-group:hover {
-    background: rgba(0, 122, 255, 0.05);
+    background: rgba(0, 122, 255, 0.08);
+    transform: translateY(-1px);
 }
 
 .tool-group label {
     color: #1d1d1f;
     font-weight: 600;
-    font-size: 13px;
-    min-width: 40px;
+    font-size: 12px;
     letter-spacing: -0.2px;
     flex-shrink: 0;
+    text-align: center;
+    margin-right: 6px;
+    white-space: nowrap;
 }
 
+@media (max-width: 600px) {
+    .tool-group label {
+        font-size: 11px;
+        margin-right: 4px;
+        width: 100%;
+        margin-bottom: 3px;
+    }
+}
+
+@media (max-width: 400px) {
+    .tool-group label {
+        font-size: 10px;
+        margin-bottom: 2px;
+    }
+}
+
+
+
+/* 第一排工具按钮的特殊样式 */
+.toolbar-row:first-child .tool-btn {
+    padding: 4px 8px;
+    margin: 1px;
+    font-size: 10px;
+    min-width: 40px;
+    height: 28px;
+    flex-shrink: 1;
+    white-space: nowrap;
+}
+
+/* 普通工具按钮 */
 .tool-btn {
-    padding: 8px 16px;
-    margin: 0;
-    background: rgba(0, 0, 0, 0.03);
+    padding: 6px 10px;
+    margin: 2px;
+    background: rgba(0, 0, 0, 0.04);
     border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 10px;
+    border-radius: 6px;
     color: #1d1d1f;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
-    min-width: 60px;
-    height: 36px;
+    min-width: 50px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
     letter-spacing: -0.2px;
-    flex-shrink: 0;
+    flex-shrink: 1;
     white-space: nowrap;
+    text-align: center;
+}
+
+/* 中等屏幕下的按钮调整 */
+@media (max-width: 900px) {
+    .tool-btn {
+        padding: 5px 8px;
+        font-size: 10px;
+        min-width: 45px;
+        height: 28px;
+        border-radius: 5px;
+        margin: 1px;
+    }
+}
+
+@media (max-width: 600px) {
+    .tool-btn {
+        padding: 4px 6px;
+        font-size: 9px;
+        min-width: 40px;
+        height: 26px;
+        border-radius: 4px;
+        margin: 1px;
+        flex: 1; /* 小屏幕下平均分配宽度 */
+        max-width: 80px; /* 限制最大宽度 */
+    }
+    
+    .grenade-btn {
+        font-size: 8px;
+        min-width: 35px;
+        padding: 3px 5px;
+    }
+}
+
+@media (max-width: 400px) {
+    .tool-btn {
+        padding: 3px 5px;
+        font-size: 8px;
+        min-width: 35px;
+        height: 24px;
+        max-width: 70px;
+    }
+    
+    .grenade-btn {
+        font-size: 7px;
+        min-width: 30px;
+        padding: 2px 4px;
+    }
 }
 
 .tool-btn:hover {
-    background: rgba(0, 122, 255, 0.08);
-    border-color: rgba(0, 122, 255, 0.2);
+    background: rgba(0, 122, 255, 0.1);
+    border-color: rgba(0, 122, 255, 0.3);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -235,7 +572,48 @@ body {
 }
 
 .tool-btn:disabled {
-    opacity: 0.3;
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* select 元素样式 */
+select {
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    color: #1d1d1f;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 80px;
+    height: 32px;
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 600px) {
+    select {
+        padding: 4px 8px;
+        font-size: 10px;
+        min-width: 70px;
+        height: 28px;
+    }
+}
+
+select:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(0, 122, 255, 0.3);
+}
+
+select:focus {
+    outline: none;
+    border-color: #007aff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.tool-btn:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
     transform: none;
 }
@@ -375,17 +753,34 @@ body {
 }
 
 select {
-    padding: 8px 12px;
+    padding: 6px 10px;
     background: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #1d1d1f;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
-    min-width: 90px;
+    min-width: 80px;
     transition: all 0.2s ease;
     flex-shrink: 0;
+    text-align: center;
+}
+
+@media (min-width: 1000px) {
+    select {
+        padding: 8px 12px;
+        font-size: 13px;
+        min-width: 90px;
+    }
+}
+
+@media (max-width: 599px) {
+    select {
+        padding: 4px 8px;
+        font-size: 11px;
+        min-width: 70px;
+    }
 }
 
 select:hover {
@@ -401,19 +796,40 @@ select:focus {
 }
 
 button {
-    padding: 8px 16px;
+    padding: 6px 12px;
     background: #007aff;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     color: #ffffff;
     cursor: pointer;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 80px;
-    height: 36px;
+    min-width: 60px;
+    height: 32px;
     letter-spacing: -0.2px;
     flex-shrink: 0;
+    text-align: center;
+    margin: 2px;
+}
+
+@media (min-width: 1000px) {
+    button {
+        padding: 8px 16px;
+        font-size: 13px;
+        min-width: 80px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 599px) {
+    button {
+        padding: 4px 8px;
+        font-size: 11px;
+        min-width: 50px;
+        height: 28px;
+        margin: 1px;
+    }
 }
 
 button:hover {
@@ -422,20 +838,24 @@ button:hover {
     box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
 
-/* 主内容区 */
+/* 主内容区 - 吸附在工具栏下方 */
 .main-content {
     display: flex;
     flex: 1;
     overflow: hidden;
     min-height: 0;
-    width: 100vw;
-    height: calc(100vh - 140px); /* 为顶部栏和工具栏预留空间 */
-    position: relative;
-    padding-top: 60px; /* 为顶部栏预留空间 */
-    padding-bottom: 100px; /* 为底部工具栏预留空间 */
+    width: 100%;
+    max-width: 100vw;
+    position: absolute;
+    top: var(--top-bar-height); /* 紧贴顶部栏下方 */
+    bottom: var(--toolbar-height); /* 紧贴工具栏上方 */
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    padding: 0; /* 移除内边距以最大化空间 */
 }
 
-/* 战术板 */
+/* 战术板 - 最大化地图显示区域 */
 .tactic-board {
     flex: 1;
     display: flex;
@@ -446,20 +866,21 @@ button:hover {
         #e9ecef 50%, 
         #f8f9fa 100%);
     position: relative;
-    padding: 20px;
+    padding: 10px; /* 减少内边距以最大化地图区域 */
     min-height: 0;
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
 }
 
+/* 修复canvas-container完整样式 - 最大化地图显示 */
 .canvas-container {
     position: relative;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.08),
-        0 2px 16px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06),
+        0 1px 8px rgba(0, 0, 0, 0.04);
     background: #ffffff;
     width: 100%;
     height: 100%;
@@ -469,6 +890,10 @@ button:hover {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    box-sizing: border-box;
+    /* 最大化显示区域 */
+    margin: 0;
+    padding: 0;
 }
 
 .canvas-container:hover {
@@ -544,20 +969,7 @@ button:hover {
 
 /* 状态栏 */
 .status-bar {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 8px 20px;
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    font-size: 12px;
-    color: #1d1d1f;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 900;
+    display: none; /* 隐藏状态栏，因为工具栏已在底部 */
 }
 
 #connectionStatus.connected {
@@ -609,9 +1021,111 @@ button:hover {
     100% { box-shadow: 0 0 5px rgba(0, 204, 255, 0.3); }
 }
 
-/* 应用动画 */
-.login-container {
-    animation: fadeIn 0.5s ease-out;
+/* 弹窗样式 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #1d1d1f;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #000;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* 用户列表样式 */
+#usersList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.user-item {
+    background: rgba(0, 122, 255, 0.1);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 122, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #007aff, #0056d3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.user-name {
+    flex: 1;
+    font-weight: 500;
+    color: #1d1d1f;
 }
 
 .sidebar {
@@ -674,34 +1188,6 @@ button:hover {
 
 .notification.warning {
     border-left-color: #ff9800;
-}
-
-/* 工具提示 */
-.tooltip {
-    position: relative;
-    cursor: help;
-}
-
-.tooltip::before {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 1000;
-}
-
-.tooltip:hover::before {
-    opacity: 1;
 }
 
 /* 拖拽效果 */

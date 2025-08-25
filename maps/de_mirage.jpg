@@ -1,0 +1,6 @@
+<!-- SVG占位符，实际应该是de_mirage地图图片 -->
+<svg width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\">
+  <rect width=\"1024\" height=\"1024\" fill=\"#2d5016\"/>
+  <text x=\"512\" y=\"512\" font-family=\"Arial\" font-size=\"48\" fill=\"white\" text-anchor=\"middle\">de_mirage</text>
+  <text x=\"512\" y=\"560\" font-family=\"Arial\" font-size=\"24\" fill=\"#ccc\" text-anchor=\"middle\">地图占位符</text>
+</svg>

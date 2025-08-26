@@ -214,7 +214,6 @@ class CSStrategyBoard {
     showMainScreen() {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainScreen').classList.remove('hidden');
-        this.updateConnectionStatus('connected');
     }
     
     // 显示登录界面
@@ -226,19 +225,8 @@ class CSStrategyBoard {
         document.getElementById('usernameInput').value = '';
     }
     
-    // 更新连接状态
-    updateConnectionStatus(status) {
-        const statusEl = document.getElementById('connectionStatus');
-        this.isConnected = status === 'connected';
-        
-        if (this.isConnected) {
-            statusEl.textContent = '连接状态: 已连接';
-            statusEl.className = 'connected';
-        } else {
-            statusEl.textContent = '连接状态: 离线';
-            statusEl.className = 'disconnected';
-        }
-    }
+    // 更新连接状态 - 已移除，不再需要显示连接状态
+    // updateConnectionStatus 方法已删除
     
     // 离开房间
     leaveRoom() {
@@ -252,7 +240,6 @@ class CSStrategyBoard {
         this.users.clear();
         
         this.showLoginScreen();
-        this.updateConnectionStatus('disconnected');
     }
     
     // 更新房间信息显示
@@ -436,15 +423,20 @@ class CSStrategyBoard {
     
     // 加载地图图像
     loadMapImage() {
+        // 清空之前的地图引用
+        this.mapImage = null;
+        
         const img = new Image();
         img.onload = () => {
             this.mapImage = img;
             console.log(`地图加载成功: ${this.currentMap}, 尺寸: ${img.width}x${img.height}`);
+            // 立即重绘，确保新地图显示
             this.redraw();
         };
         img.onerror = () => {
             console.warn(`无法加载地图: ${this.maps[this.currentMap]}`);
             this.mapImage = null;
+            // 即使加载失败也要重绘，显示默认背景
             this.redraw();
         };
         img.src = this.maps[this.currentMap] || this.maps['de_dust2'];
@@ -462,20 +454,6 @@ class CSStrategyBoard {
         if (activeBtn) {
             activeBtn.classList.add('active');
         }
-        
-        // 更新状态显示
-        const toolNames = {
-            'move': '移动',
-            'playerT': 'T队员',
-            'playerCT': 'CT队员',
-            'line': '画线',
-            'smoke': '烟雾弹',
-            'flash': '闪光弹',
-            'fire': '燃烧弹',
-            'grenade': '手雷',
-            'erase': '橡皮擦'
-        };
-        document.getElementById('currentTool').textContent = `当前工具: ${toolNames[tool] || tool}`;
         
         // 更新鼠标样式
         this.updateCursor();
@@ -504,10 +482,23 @@ class CSStrategyBoard {
     changeMap(mapName) {
         this.currentMap = mapName;
         
+        // 立即清空画布，防止残留上一张地图的痕迹
+        if (this.ctx) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            // 绘制临时背景，显示加载状态
+            this.ctx.fillStyle = '#f8f9fa';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = '#1d1d1f';
+            this.ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('地图切换中...', this.canvas.width / 2, this.canvas.height / 2);
+        }
+        
         // 切换地图时清空所有内容
         this.shapes = [];
         this.recalculateItemCounts();
         
+        // 加载新地图
         this.loadMapImage();
         this.syncMapToRoom();
         
@@ -624,8 +615,12 @@ class CSStrategyBoard {
     redraw() {
         if (!this.ctx) return;
         
-        // 清空画布
+        // 完全清空画布，确保没有残留
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 重置画布状态
+        this.ctx.globalAlpha = 1.0;
+        this.ctx.globalCompositeOperation = 'source-over';
         
         // 绘制地图背景
         if (this.mapImage) {

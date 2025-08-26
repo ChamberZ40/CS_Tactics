@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试按钮</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 50px;
+        }
+        button {
+            padding: 15px 30px;
+            background: #00ccff;
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #555;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 4px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            color: #fff;
+            z-index: 1000;
+        }
+        .notification.success { background: #4CAF50; }
+        .notification.error { background: #f44336; }
+        .notification.warning { background: #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>按钮测试页面</h1>
+    <input type="text" id="usernameInput" placeholder="输入用户名">
+    <button id="joinRoomBtn">进入战术室</button>
+    
+    <script>
+        console.log('开始测试...');
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+        
+        function joinRoom() {
+            console.log('joinRoom 函数被调用');
+            const username = document.getElementById('usernameInput').value.trim();
+            console.log('用户名:', username);
+            
+            if (!username) {
+                showNotification('请输入用户名', 'error');
+                return;
+            }
+            
+            showNotification(`欢迎 ${username}!`, 'success');
+        }
+        
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 加载完成');
+            
+            const joinBtn = document.getElementById('joinRoomBtn');
+            console.log('找到按钮:', joinBtn);
+            
+            if (joinBtn) {
+                joinBtn.addEventListener('click', function() {
+                    console.log('按钮被点击了!');
+                    joinRoom();
+                });
+                console.log('事件监听器绑定成功');
+            } else {
+                console.error('找不到按钮元素');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1306,6 +1306,12 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
+}
+
+.user-item.self {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: rgba(255, 107, 107, 0.3);
 }
 
 .user-avatar {
@@ -1319,12 +1325,61 @@ button:hover {
     color: #fff;
     font-weight: bold;
     font-size: 14px;
+    flex-shrink: 0;
 }
 
 .user-name {
     flex: 1;
     font-weight: 500;
     color: #1d1d1f;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-role {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.user-role.admin {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    border: 1px solid rgba(255, 59, 48, 0.2);
+}
+
+.user-role.viewer {
+    background: rgba(142, 142, 147, 0.1);
+    color: #8e8e93;
+    border: 1px solid rgba(142, 142, 147, 0.2);
+}
+
+.delete-user-btn {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    color: #ff3b30;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.delete-user-btn:hover {
+    background: rgba(255, 59, 48, 0.2);
+    border-color: rgba(255, 59, 48, 0.5);
+    transform: translateY(-1px);
+}
+
+.delete-user-btn:active {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 4px rgba(255, 59, 48, 0.3);
 }
 
 .sidebar {

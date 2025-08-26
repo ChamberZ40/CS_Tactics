@@ -1,7 +1,7 @@
 // CS战术板 - 多人协作版
 class CSStrategyBoard {
     constructor() {
-        console.log('开始初始化CSStrategyBoard...');
+        // 初始化CSStrategyBoard
         
         this.currentUser = null;
         this.roomId = 'MAIN_ROOM';
@@ -49,12 +49,11 @@ class CSStrategyBoard {
         this.currentMap = 'de_dust2';
         this.mapImage = null;
         
-        console.log('属性初始化完成，开始调用init...');
+        // 属性初始化完成
         this.init();
     }
     
     init() {
-        console.log('😠 紧急修复工具栏显示问题...');
         this.emergencyToolbarFix(); // 紧急修复
         this.bindEvents();
         this.loadMapImage();
@@ -66,11 +65,8 @@ class CSStrategyBoard {
     
     // 紧急修复工具栏显示问题
     emergencyToolbarFix() {
-        console.log('😡 正在执行最强力的工具栏修复...');
-        
         const toolbar = document.getElementById('toolbar');
         if (!toolbar) {
-            console.error('⚠️ 工具栏元素不存在！');
             return;
         }
         
@@ -186,7 +182,7 @@ class CSStrategyBoard {
             row.style.opacity = '1';
         });
         
-        console.log(`✅ 超级强力修复完成！${isMobile ? '移动端底部' : '桌面端右侧'}工具栏绝对显示`);
+        // 超级强力修复完成
     }
     
     setupRealtimeSync() {
@@ -195,12 +191,29 @@ class CSStrategyBoard {
                 this.handleRealtimeUpdate(roomData);
             },
             onUserJoin: (userData) => {
-                console.log(`👋 新用户加入: ${userData.user ? userData.user.name : '未知用户'}`);
+                // 新用户加入
                 this.showNotification(`${userData.user ? userData.user.name : '用户'} 加入了房间`, 'info');
             },
             onUserLeave: (userData) => {
-                console.log(`🚪 用户离开: ${userData.userName || userData.userId}`);
+                // 用户离开
                 this.showNotification(`${userData.userName || '用户'} 离开了房间`, 'info');
+            },
+            onUserKicked: (kickData) => {
+                // 用户被踢出事件
+                if (kickData.kickedUserId === this.currentUser.id) {
+                    // 如果是自己被踢出
+                    this.showNotification(`您被管理员 "${kickData.adminName}" 踢出了房间`, 'error');
+                    // 延迟2秒后返回登录界面
+                    setTimeout(() => {
+                        this.leaveRoom();
+                    }, 2000);
+                } else {
+                    // 其他用户被踢出
+                    this.showNotification(`用户 "${kickData.kickedUserName}" 被管理员踢出了房间`, 'info');
+                    // 从本地用户列表中移除
+                    this.users.delete(kickData.kickedUserId);
+                    this.updateUsersList();
+                }
             }
         });
     }
@@ -224,16 +237,7 @@ class CSStrategyBoard {
             }
             
             // 记录详细的滚动状态信息
-            console.log('📊 工具栏内容状态检测:', {
-                工具栏实际高度: toolbar.scrollHeight,
-                工具栏显示高度: toolbar.clientHeight,
-                工具栏实际宽度: toolbar.scrollWidth,
-                工具栏显示宽度: toolbar.clientWidth,
-                需要垂直滚动: isVerticalScrollable,
-                需要水平滚动: isHorizontalScrollable,
-                总滚动状态: hasOverflow ? '需要滚动' : '无需滚动',
-                子元素数量: toolbar.children.length
-            });
+            // 工具栏内容状态检测
             
             // 如果需要滚动，显示提示信息
             if (hasOverflow) {
@@ -922,6 +926,9 @@ class CSStrategyBoard {
         this.users.forEach(user => {
             const userItem = document.createElement('div');
             userItem.className = 'user-item';
+            if (user.id === this.currentUser.id) {
+                userItem.classList.add('self');
+            }
             
             const avatar = document.createElement('div');
             avatar.className = 'user-avatar';
@@ -931,10 +938,80 @@ class CSStrategyBoard {
             name.className = 'user-name';
             name.textContent = user.name;
             
+            // 添加角色标识
+            const role = document.createElement('div');
+            role.className = 'user-role';
+            if (user.name === 'admin') {
+                role.textContent = '管理员';
+                role.classList.add('admin');
+            } else {
+                role.textContent = '观看者';
+                role.classList.add('viewer');
+            }
+            
             userItem.appendChild(avatar);
             userItem.appendChild(name);
+            userItem.appendChild(role);
+            
+            // 只有admin用户才能看到删除按钮，且不能删除自己
+            if (this.currentUser.name === 'admin' && user.id !== this.currentUser.id) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-user-btn';
+                deleteBtn.textContent = '踢出';
+                deleteBtn.title = '将此用户踢出房间';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.kickUser(user);
+                };
+                userItem.appendChild(deleteBtn);
+            }
+            
             usersList.appendChild(userItem);
         });
+    }
+
+    // 踢出用户（仅admin可用）
+    kickUser(user) {
+        if (this.currentUser.name !== 'admin') {
+            this.showNotification('您没有权限执行此操作', 'error');
+            return;
+        }
+        
+        if (user.id === this.currentUser.id) {
+            this.showNotification('不能踢出自己', 'error');
+            return;
+        }
+        
+        // 显示确认对话框
+        if (!confirm(`确认要将用户 "${user.name}" 踢出房间吗？`)) {
+            return;
+        }
+        
+        // 从用户列表中移除
+        this.users.delete(user.id);
+        
+        // 从房间数据中移除
+        const roomData = this.getRoomData();
+        if (roomData) {
+            roomData.users = roomData.users.filter(u => u.id !== user.id);
+            this.saveRoomData(roomData);
+        }
+        
+        // 广播用户被踢出事件
+        this.realtimeSync.broadcast('user_kicked', {
+            kickedUserId: user.id,
+            kickedUserName: user.name,
+            adminName: this.currentUser.name,
+            timestamp: Date.now()
+        });
+        
+        // 更新用户列表显示
+        this.updateUsersList();
+        
+        // 显示通知
+        this.showNotification(`用户 "${user.name}" 已被踢出房间`, 'success');
+        
+        console.log(`👢 管理员 ${this.currentUser.name} 踢出了用户 ${user.name}`);
     }
     
     // 检查道具数量限制
@@ -1242,29 +1319,7 @@ class CSStrategyBoard {
         this.saveRoomData(roomData);
     }
     
-    // 更新用户列表
-    updateUsersList() {
-        const usersList = document.getElementById('usersList');
-        if (!usersList) return;
-        
-        usersList.innerHTML = '';
-        
-        this.users.forEach(user => {
-            const userDiv = document.createElement('div');
-            userDiv.className = 'user-item';
-            if (user.id === this.currentUser.id) {
-                userDiv.classList.add('self');
-            }
-            
-            userDiv.innerHTML = `
-                <span class="username">${user.name}</span>
-            `;
-            
-            usersList.appendChild(userDiv);
-        });
-        
-        this.updateUserCount();
-    }
+
     
     // 重绘画布
     redraw() {

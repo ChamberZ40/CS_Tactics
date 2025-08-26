@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员功能调试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f7;
+        }
+        .debug-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007aff;
+        }
+        .success { border-left-color: #34c759; }
+        .error { border-left-color: #ff3b30; }
+        .warning { border-left-color: #ff9500; }
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .code {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: Monaco, monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 管理员删除功能调试</h1>
+    
+    <div class="debug-item">
+        <h3>步骤1: 检查当前登录状态</h3>
+        <button onclick="checkLoginStatus()">检查登录状态</button>
+        <div id="loginStatus"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>步骤2: 检查用户列表</h3>
+        <button onclick="checkUserList()">检查用户列表</button>
+        <div id="userListStatus"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>步骤3: 手动创建测试用户</h3>
+        <button onclick="createTestUsers()">创建测试用户</button>
+        <div id="testUsersStatus"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>步骤4: 检查删除按钮</h3>
+        <button onclick="checkDeleteButtons()">检查删除按钮</button>
+        <div id="deleteButtonStatus"></div>
+    </div>
+
+    <div class="debug-item">
+        <h3>快速操作</h3>
+        <button onclick="window.open('http://localhost:8080', '_blank')">打开主应用</button>
+        <button onclick="resetLocalStorage()">清除所有数据</button>
+    </div>
+
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning';
+            element.innerHTML += `<div class="debug-item ${className}">${message}</div>`;
+        }
+
+        function checkLoginStatus() {
+            const statusDiv = document.getElementById('loginStatus');
+            statusDiv.innerHTML = '';
+            
+            try {
+                // 检查localStorage中的房间数据
+                const roomData = localStorage.getItem('room_cs_tactics');
+                if (roomData) {
+                    const data = JSON.parse(roomData);
+                    log('loginStatus', `✅ 找到房间数据，用户数量: ${data.users ? data.users.length : 0}`, 'success');
+                    
+                    if (data.users && data.users.length > 0) {
+                        data.users.forEach(user => {
+                            const isAdmin = user.name === 'admin';
+                            log('loginStatus', `👤 用户: ${user.name} (${isAdmin ? '管理员' : '观看者'})`, isAdmin ? 'success' : 'info');
+                        });
+                    }
+                } else {
+                    log('loginStatus', '⚠️ 没有找到房间数据，请先登录主应用', 'warning');
+                }
+            } catch (error) {
+                log('loginStatus', `❌ 检查登录状态时出错: ${error.message}`, 'error');
+            }
+        }
+
+        function checkUserList() {
+            const statusDiv = document.getElementById('userListStatus');
+            statusDiv.innerHTML = '';
+            
+            // 模拟打开主应用窗口来检查
+            const mainWindow = window.open('http://localhost:8080', 'mainApp');
+            
+            setTimeout(() => {
+                try {
+                    // 尝试访问主窗口的全局变量
+                    if (mainWindow.csBoard) {
+                        const users = mainWindow.csBoard.users;
+                        log('userListStatus', `✅ 主应用已加载，用户数量: ${users.size}`, 'success');
+                        
+                        users.forEach(user => {
+                            const isAdmin = user.name === 'admin';
+                            log('userListStatus', `👤 ${user.name} (${isAdmin ? '管理员' : '观看者'})`, isAdmin ? 'success' : 'info');
+                        });
+                    } else {
+                        log('userListStatus', '⚠️ 主应用未完全加载，请等待几秒后重试', 'warning');
+                    }
+                } catch (error) {
+                    log('userListStatus', `❌ 无法访问主应用: ${error.message}`, 'error');
+                    log('userListStatus', '💡 请手动在主应用中检查用户列表', 'info');
+                }
+            }, 2000);
+        }
+
+        function createTestUsers() {
+            const statusDiv = document.getElementById('testUsersStatus');
+            statusDiv.innerHTML = '';
+            
+            try {
+                // 创建测试房间数据
+                const testData = {
+                    users: [
+                        {
+                            id: 'admin_' + Date.now(),
+                            name: 'admin',
+                            joinTime: Date.now()
+                        },
+                        {
+                            id: 'test1_' + Date.now(),
+                            name: 'test1',
+                            joinTime: Date.now() + 1000
+                        },
+                        {
+                            id: 'test2_' + Date.now(),
+                            name: 'test2',
+                            joinTime: Date.now() + 2000
+                        }
+                    ],
+                    shapes: [],
+                    currentMap: 'de_dust2',
+                    lastUpdate: Date.now()
+                };
+                
+                localStorage.setItem('room_cs_tactics', JSON.stringify(testData));
+                log('testUsersStatus', '✅ 测试用户创建成功！', 'success');
+                log('testUsersStatus', '👤 admin (管理员)', 'success');
+                log('testUsersStatus', '👤 test1 (观看者)', 'info');
+                log('testUsersStatus', '👤 test2 (观看者)', 'info');
+                log('testUsersStatus', '💡 现在使用"admin"登录主应用即可看到删除按钮', 'info');
+                
+            } catch (error) {
+                log('testUsersStatus', `❌ 创建测试用户失败: ${error.message}`, 'error');
+            }
+        }
+
+        function checkDeleteButtons() {
+            const statusDiv = document.getElementById('deleteButtonStatus');
+            statusDiv.innerHTML = '';
+            
+            // 检查CSS样式是否正确加载
+            const testElement = document.createElement('div');
+            testElement.className = 'delete-user-btn';
+            testElement.textContent = '踢出';
+            testElement.style.display = 'none';
+            document.body.appendChild(testElement);
+            
+            const styles = window.getComputedStyle(testElement);
+            const hasStyles = styles.backgroundColor !== 'rgba(0, 0, 0, 0)';
+            
+            document.body.removeChild(testElement);
+            
+            if (hasStyles) {
+                log('deleteButtonStatus', '✅ 删除按钮CSS样式正常', 'success');
+            } else {
+                log('deleteButtonStatus', '⚠️ 删除按钮CSS样式可能未加载', 'warning');
+            }
+            
+            // 提供调试代码
+            log('deleteButtonStatus', '💡 在主应用控制台运行以下代码来强制显示删除按钮:', 'info');
+            log('deleteButtonStatus', '<div class="code">csBoard.updateUsersList();</div>', 'info');
+            log('deleteButtonStatus', '或者检查当前用户:', 'info');
+            log('deleteButtonStatus', '<div class="code">console.log("当前用户:", csBoard.currentUser.name);</div>', 'info');
+        }
+
+        function resetLocalStorage() {
+            localStorage.clear();
+            alert('✅ 所有本地数据已清除！请重新登录。');
+        }
+
+        // 页面加载时自动检查
+        window.addEventListener('load', () => {
+            setTimeout(checkLoginStatus, 500);
+        });
+    </script>
+</body>
+</html>

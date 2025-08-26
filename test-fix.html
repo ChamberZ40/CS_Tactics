@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ 修复验证 - 踢出按钮和观察者标签</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            background: #f5f5f7;
+            text-align: center;
+        }
+        
+        .fix-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            border-left: 6px solid #34c759;
+        }
+        
+        .status-good {
+            background: rgba(52, 199, 89, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #34c759;
+            color: #2d7d32;
+        }
+        
+        .test-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn:hover {
+            background: #0051d0;
+            transform: translateY(-2px);
+        }
+        
+        .create-btn {
+            background: #34c759;
+        }
+        
+        .create-btn:hover {
+            background: #2d8f3f;
+        }
+        
+        .steps {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .steps ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .steps li {
+            margin: 8px 0;
+            font-weight: 500;
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #1d1d1f;
+        }
+    </style>
+</head>
+<body>
+    <h1>✅ 问题已修复！</h1>
+    
+    <div class="fix-box">
+        <h2>🔧 修复内容</h2>
+        <div class="status-good">
+            <h3>✅ 已解决的问题：</h3>
+            <ul style="text-align: left; display: inline-block;">
+                <li><strong>删除了重复的 updateUsersList 方法</strong> - 简化版本覆盖了完整功能</li>
+                <li><strong>恢复了角色标识显示</strong> - "管理员"和"观看者"标签</li>
+                <li><strong>恢复了红色踢出按钮</strong> - admin用户专用删除功能</li>
+                <li><strong>保留了完整的用户头像</strong> - 圆形头像显示</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 现在您应该看到：</h2>
+        <div class="steps">
+            <ol>
+                <li>用户列表中每个用户都有<strong>圆形头像</strong>（显示用户名首字母）</li>
+                <li><span class="highlight">admin</span>用户旁边显示红色的"管理员"标签</li>
+                <li>其他用户旁边显示灰色的<span class="highlight">"观看者"</span>标签</li>
+                <li>admin用户可以看到其他用户旁边的<strong>红色"踢出"按钮</strong></li>
+                <li>admin用户自己旁边<strong>没有</strong>踢出按钮（不能删除自己）</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="fix-box">
+        <h2>🚀 立即测试</h2>
+        <p>按照以下步骤验证修复是否成功：</p>
+        
+        <button class="test-btn create-btn" onclick="createTestEnvironment()">
+            🔧 创建测试用户环境
+        </button>
+        
+        <button class="test-btn" onclick="openMainApp()">
+            🎮 打开主应用测试
+        </button>
+        
+        <div id="testStatus" style="margin-top: 20px;"></div>
+        
+        <div class="steps">
+            <h3>📝 测试步骤：</h3>
+            <ol>
+                <li>点击"创建测试用户环境"按钮</li>
+                <li>点击"打开主应用测试"按钮</li>
+                <li>在主应用中输入用户名：<span class="highlight">admin</span></li>
+                <li>点击"进入战术室"</li>
+                <li>点击右上角的<span class="highlight">"在线用户"</span>按钮</li>
+                <li>检查用户列表是否显示：
+                    <ul>
+                        <li>✅ 圆形头像</li>
+                        <li>✅ "管理员"/"观看者"角色标签</li>
+                        <li>✅ 红色"踢出"按钮（在其他用户旁边）</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function createTestEnvironment() {
+            try {
+                const testData = {
+                    users: [
+                        {
+                            id: 'admin_' + Date.now(),
+                            name: 'admin',
+                            joinTime: Date.now()
+                        },
+                        {
+                            id: 'user1_' + Date.now(),
+                            name: 'testuser1',
+                            joinTime: Date.now() + 1000
+                        },
+                        {
+                            id: 'user2_' + Date.now(),
+                            name: 'observer1',
+                            joinTime: Date.now() + 2000
+                        }
+                    ],
+                    shapes: [],
+                    currentMap: 'de_dust2',
+                    lastUpdate: Date.now()
+                };
+                
+                localStorage.setItem('room_cs_tactics', JSON.stringify(testData));
+                
+                document.getElementById('testStatus').innerHTML = `
+                    <div class="status-good">
+                        <h3>✅ 测试环境创建成功！</h3>
+                        <p><strong>已创建用户：</strong></p>
+                        <ul style="text-align: left; display: inline-block;">
+                            <li><strong>admin</strong> - 应显示"管理员"标签，可以看到踢出按钮</li>
+                            <li><strong>testuser1</strong> - 应显示"观看者"标签，旁边有踢出按钮</li>
+                            <li><strong>observer1</strong> - 应显示"观看者"标签，旁边有踢出按钮</li>
+                        </ul>
+                        <p><strong>现在点击"打开主应用测试"开始验证！</strong></p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('testStatus').innerHTML = `
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; color: #c62828;">
+                        ❌ 创建失败: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        function openMainApp() {
+            window.open('http://localhost:8080', '_blank');
+            
+            setTimeout(() => {
+                alert(`📋 验证清单：
+
+✅ 请检查用户列表中是否显示：
+1. 圆形用户头像（显示首字母）
+2. "管理员"和"观看者"角色标签
+3. 红色"踢出"按钮（admin用户可见）
+
+如果所有功能都正常显示，说明修复成功！
+
+💡 记住：需要点击右上角"在线用户"按钮才能看到用户列表弹窗`);
+            }, 1000);
+        }
+
+        // 页面加载时自动提示
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (confirm('🎉 问题已修复！\n\n要立即创建测试环境验证修复结果吗？')) {
+                    createTestEnvironment();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

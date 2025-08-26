@@ -7,7 +7,8 @@ class RealtimeSync {
         this.callbacks = {
             onRoomUpdate: null,
             onUserJoin: null,
-            onUserLeave: null
+            onUserLeave: null,
+            onUserKicked: null
         };
     }
     
@@ -124,6 +125,20 @@ class RealtimeSync {
                         if (this.callbacks.onUserLeave) {
                             this.callbacks.onUserLeave(data);
                         }
+                    }
+                }
+                break;
+            case 'user_kicked':
+                // 用户被踢出事件处理
+                if (data && data.kickedUserId) {
+                    // 从房间数据中移除被踢出的用户
+                    roomData.users = roomData.users.filter(u => u.id !== data.kickedUserId);
+                    
+                    console.log(`👢 用户 ${data.kickedUserName} 被管理员 ${data.adminName} 踢出`);
+                    
+                    // 触发用户被踢出回调
+                    if (this.callbacks.onUserKicked) {
+                        this.callbacks.onUserKicked(data);
                     }
                 }
                 break;

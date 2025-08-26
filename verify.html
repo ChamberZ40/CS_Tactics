@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS战术板 - 部署验证</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f7;
+        }
+        .check-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .success { background: #34c759; }
+        .error { background: #ff3b30; }
+        .loading { background: #007aff; }
+        .info {
+            flex: 1;
+        }
+        .filename {
+            font-family: Monaco, monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        h1 {
+            text-align: center;
+            color: #1d1d1f;
+        }
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        button:hover {
+            background: #0051d0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 CS战术板部署验证</h1>
+    
+    <button onclick="runVerification()">开始验证</button>
+    
+    <div id="results">
+        <!-- 验证结果将在这里显示 -->
+    </div>
+
+    <script>
+        const filesToCheck = [
+            { path: 'index.html', description: '主页面文件' },
+            { path: 'script.js', description: '核心功能脚本' },
+            { path: 'realtime.js', description: '实时同步模块' },
+            { path: 'style.css', description: '样式文件' },
+            { path: 'production-optimize.js', description: '生产环境优化脚本' },
+            { path: 'maps/de_dust2.jpg', description: 'de_dust2地图文件' },
+            { path: 'maps/de_mirage.jpg', description: 'de_mirage地图文件' },
+            { path: 'maps/de_inferno.jpg', description: 'de_inferno地图文件' }
+        ];
+
+        async function checkFile(filePath) {
+            try {
+                const response = await fetch(filePath, { method: 'HEAD' });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function runVerification() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            for (const file of filesToCheck) {
+                // 创建检查项
+                const checkItem = document.createElement('div');
+                checkItem.className = 'check-item';
+                checkItem.innerHTML = `
+                    <div class="status loading">⏳</div>
+                    <div class="info">
+                        <div>检查文件: <span class="filename">${file.path}</span></div>
+                        <div style="color: #666; font-size: 14px;">${file.description}</div>
+                    </div>
+                `;
+                resultsDiv.appendChild(checkItem);
+
+                // 检查文件
+                const exists = await checkFile(file.path);
+                const statusDiv = checkItem.querySelector('.status');
+                
+                if (exists) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✓';
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '✗';
+                }
+            }
+
+            // 添加总结
+            const summary = document.createElement('div');
+            summary.className = 'check-item';
+            summary.style.marginTop = '30px';
+            summary.style.background = '#e8f4fd';
+            summary.innerHTML = `
+                <div class="info">
+                    <h3>验证完成！</h3>
+                    <p>✅ 如果所有项目都显示绿色勾号，说明文件部署正确</p>
+                    <p>❌ 如果有红色叉号，请检查对应的文件是否存在且路径正确</p>
+                    <p>📝 确认无误后，可以访问 <a href="index.html">主应用</a> 进行功能测试</p>
+                </div>
+            `;
+            resultsDiv.appendChild(summary);
+        }
+
+        // 页面加载时自动运行验证
+        window.addEventListener('load', runVerification);
+    </script>
+</body>
+</html>

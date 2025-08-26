@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 红色踢出按钮问题解决方案</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f7;
+            line-height: 1.6;
+        }
+        
+        .solution-box {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-left: 6px solid #ff3b30;
+        }
+        
+        .step-box {
+            background: rgba(0, 122, 255, 0.05);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            border-left: 4px solid #007aff;
+        }
+        
+        .warning-box {
+            background: rgba(255, 149, 0, 0.1);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ff9500;
+            color: #d2691e;
+        }
+        
+        .success-box {
+            background: rgba(52, 199, 89, 0.1);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #34c759;
+            color: #2d7d32;
+        }
+        
+        button {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 59, 48, 0.3);
+        }
+        
+        .quick-btn {
+            background: #007aff;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .quick-btn:hover {
+            background: #0051d0;
+        }
+        
+        .code-box {
+            background: #1d1d1f;
+            color: #f0f0f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: Monaco, 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #1d1d1f;
+        }
+        
+        .demo-button {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff3b30;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0 8px;
+            display: inline-block;
+        }
+        
+        h1 { color: #1d1d1f; text-align: center; margin-bottom: 30px; }
+        h2 { color: #007aff; margin-bottom: 15px; }
+        h3 { color: #333; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔴 红色踢出按钮显示问题 - 完整解决方案</h1>
+
+    <div class="solution-box">
+        <h2>🎯 问题诊断</h2>
+        <p>您看不到红色"踢出"按钮可能是以下原因之一：</p>
+        <ul>
+            <li><strong>只有一个用户</strong> - 需要至少2个用户才会显示删除按钮</li>
+            <li><strong>没有打开用户列表</strong> - 删除按钮在用户列表弹窗中</li>
+            <li><strong>不是admin用户</strong> - 只有admin用户才能看到删除按钮</li>
+            <li><strong>浏览器缓存问题</strong> - 需要强制刷新</li>
+        </ul>
+    </div>
+
+    <div class="step-box">
+        <h2>📋 解决步骤（请按顺序操作）</h2>
+        
+        <h3>步骤1: 创建多用户环境</h3>
+        <button onclick="createMultiUserEnvironment()">🚀 立即创建测试环境</button>
+        <div id="step1Status"></div>
+        
+        <h3>步骤2: 以admin身份登录</h3>
+        <p>点击下面的按钮将以admin身份打开主应用：</p>
+        <button onclick="openAsAdmin()" class="quick-btn">🔑 以Admin身份打开主应用</button>
+        
+        <h3>步骤3: 打开用户列表查看删除按钮</h3>
+        <p>在主应用中，点击右上角的 <span class="highlight">"在线用户"</span> 按钮，您应该看到：</p>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+            <div style="display: flex; align-items: center; gap: 12px; margin: 8px 0;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #007aff, #0056d3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">A</div>
+                <span>admin</span>
+                <span style="font-size: 12px; padding: 2px 6px; background: rgba(255, 59, 48, 0.1); color: #ff3b30; border-radius: 4px;">管理员</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin: 8px 0;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #007aff, #0056d3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">T</div>
+                <span>testuser1</span>
+                <span style="font-size: 12px; padding: 2px 6px; background: rgba(142, 142, 147, 0.1); color: #8e8e93; border-radius: 4px;">观看者</span>
+                <span class="demo-button">踢出</span> ← 这是您要找的红色按钮！
+            </div>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <h3>⚠️ 重要提醒</h3>
+        <p>删除按钮只会在以下情况下显示：</p>
+        <ul>
+            <li>当前用户必须是 <strong>admin</strong></li>
+            <li>房间内必须有 <strong>其他用户</strong>（除了自己）</li>
+            <li>必须打开 <strong>用户列表弹窗</strong> 才能看到</li>
+        </ul>
+    </div>
+
+    <div class="step-box">
+        <h2>🔧 高级调试方案</h2>
+        
+        <h3>方案A: 浏览器控制台调试</h3>
+        <p>在主应用中按F12打开控制台，粘贴以下代码：</p>
+        <div class="code-box">
+// 检查删除按钮状态
+console.log('🔍 调试删除按钮...');
+console.log('当前用户:', csBoard.currentUser);
+console.log('用户总数:', csBoard.users.size);
+console.log('是否为admin:', csBoard.currentUser?.name === 'admin');
+
+// 强制更新用户列表
+if (csBoard && csBoard.updateUsersList) {
+    csBoard.updateUsersList();
+    console.log('✅ 已更新用户列表');
+}
+
+// 检查删除按钮
+const buttons = document.querySelectorAll('.delete-user-btn');
+console.log('找到删除按钮数量:', buttons.length);
+if (buttons.length > 0) {
+    console.log('✅ 删除按钮存在！', buttons);
+} else {
+    console.log('❌ 未找到删除按钮');
+}
+        </div>
+        <button onclick="copyDebugCode()" class="quick-btn">📋 复制调试代码</button>
+        
+        <h3>方案B: 手动创建用户</h3>
+        <p>如果自动方案无效，请手动操作：</p>
+        <ol>
+            <li>打开两个浏览器标签页访问 http://localhost:8080</li>
+            <li>第一个标签页输入用户名 <code>admin</code> 并进入</li>
+            <li>第二个标签页输入用户名 <code>testuser</code> 并进入</li>
+            <li>回到第一个标签页（admin），点击右上角"在线用户"</li>
+            <li>您应该看到testuser旁边有红色"踢出"按钮</li>
+        </ol>
+    </div>
+
+    <div class="success-box">
+        <h2>✅ 验证成功标志</h2>
+        <p>当一切正常时，您应该看到：</p>
+        <ul>
+            <li>用户列表中显示多个用户</li>
+            <li>admin用户旁边显示"管理员"标签</li>
+            <li>其他用户旁边有红色的"踢出"按钮</li>
+            <li>点击"踢出"按钮会显示确认对话框</li>
+        </ul>
+    </div>
+
+    <script>
+        function createMultiUserEnvironment() {
+            try {
+                const testData = {
+                    users: [
+                        {
+                            id: 'admin_' + Date.now(),
+                            name: 'admin',
+                            joinTime: Date.now()
+                        },
+                        {
+                            id: 'user1_' + Date.now(),
+                            name: 'testuser1',
+                            joinTime: Date.now() + 1000
+                        },
+                        {
+                            id: 'user2_' + Date.now(),
+                            name: 'testuser2',
+                            joinTime: Date.now() + 2000
+                        }
+                    ],
+                    shapes: [],
+                    currentMap: 'de_dust2',
+                    lastUpdate: Date.now()
+                };
+                
+                localStorage.setItem('room_cs_tactics', JSON.stringify(testData));
+                
+                const statusDiv = document.getElementById('step1Status');
+                statusDiv.innerHTML = `
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 10px 0; color: #2d7d32;">
+                        <h4>✅ 测试环境创建成功！</h4>
+                        <p>已创建以下用户：</p>
+                        <ul>
+                            <li><strong>admin</strong> (管理员) - 您需要用这个登录</li>
+                            <li><strong>testuser1</strong> (观看者) - 将显示删除按钮</li>
+                            <li><strong>testuser2</strong> (观看者) - 将显示删除按钮</li>
+                        </ul>
+                        <p><strong>下一步：点击下面的按钮以admin身份打开主应用</strong></p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('step1Status').innerHTML = `
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 10px 0; color: #c62828;">
+                        ❌ 创建失败: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function openAsAdmin() {
+            window.open('http://localhost:8080', '_blank');
+            
+            setTimeout(() => {
+                alert(`🎯 操作指南：
+                
+1. 在新打开的标签页中，输入用户名：admin
+2. 点击"进入战术室"
+3. 进入后，点击右上角的"在线用户"按钮
+4. 您应该看到其他用户旁边有红色的"踢出"按钮
+
+如果还是看不到，请：
+- 刷新页面（Ctrl+F5）
+- 或者按F12打开控制台运行调试代码`);
+            }, 1000);
+        }
+
+        function copyDebugCode() {
+            const code = `// 检查删除按钮状态
+console.log('🔍 调试删除按钮...');
+console.log('当前用户:', csBoard.currentUser);
+console.log('用户总数:', csBoard.users.size);
+console.log('是否为admin:', csBoard.currentUser?.name === 'admin');
+
+// 强制更新用户列表
+if (csBoard && csBoard.updateUsersList) {
+    csBoard.updateUsersList();
+    console.log('✅ 已更新用户列表');
+}
+
+// 检查删除按钮
+const buttons = document.querySelectorAll('.delete-user-btn');
+console.log('找到删除按钮数量:', buttons.length);
+if (buttons.length > 0) {
+    console.log('✅ 删除按钮存在！', buttons);
+} else {
+    console.log('❌ 未找到删除按钮');
+}`;
+
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ 调试代码已复制到剪贴板！\n\n请：\n1. 在主应用中按F12打开控制台\n2. 粘贴代码并回车\n3. 查看输出结果');
+            });
+        }
+
+        // 页面加载时自动提示
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (confirm('🔴 要解决红色踢出按钮显示问题吗？\n\n点击"确定"立即创建测试环境，或点击"取消"手动操作。')) {
+                    createMultiUserEnvironment();
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

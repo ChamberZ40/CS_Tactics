@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 红色踢出按钮 - 外观演示</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f7;
+            text-align: center;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .user-item {
+            background: rgba(0, 122, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007aff, #0056d3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .user-name {
+            flex: 1;
+            font-weight: 500;
+            color: #1d1d1f;
+            text-align: left;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .user-role.admin {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+        
+        .user-role.viewer {
+            background: rgba(142, 142, 147, 0.1);
+            color: #8e8e93;
+            border: 1px solid rgba(142, 142, 147, 0.2);
+        }
+        
+        /* 这就是您要找的红色踢出按钮！ */
+        .delete-user-btn {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff3b30;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .delete-user-btn:hover {
+            background: rgba(255, 59, 48, 0.2);
+            border-color: rgba(255, 59, 48, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .delete-user-btn:active {
+            transform: translateY(0);
+            box-shadow: inset 0 2px 4px rgba(255, 59, 48, 0.3);
+        }
+        
+        .highlight-box {
+            background: #ffeb3b;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px dashed #ff6b35;
+        }
+        
+        .open-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .open-btn:hover {
+            background: #0051d0;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <h1>🔴 这就是您要找的红色踢出按钮！</h1>
+    
+    <div class="demo-container">
+        <h2>📋 用户列表预览</h2>
+        <p>当您以admin身份登录并打开用户列表时，应该看到这样的界面：</p>
+        
+        <div class="user-item">
+            <div class="user-avatar">A</div>
+            <div class="user-name">admin</div>
+            <div class="user-role admin">管理员</div>
+            <!-- admin不会有删除按钮，因为不能删除自己 -->
+        </div>
+        
+        <div class="user-item">
+            <div class="user-avatar">T</div>
+            <div class="user-name">testuser1</div>
+            <div class="user-role viewer">观看者</div>
+            <button class="delete-user-btn" onclick="demoKick('testuser1')">踢出</button>
+        </div>
+        
+        <div class="user-item">
+            <div class="user-avatar">U</div>
+            <div class="user-name">testuser2</div>
+            <div class="user-role viewer">观看者</div>
+            <button class="delete-user-btn" onclick="demoKick('testuser2')">踢出</button>
+        </div>
+    </div>
+    
+    <div class="highlight-box">
+        <h3>🎯 重点说明</h3>
+        <p><strong style="color: #ff3b30;">红色的"踢出"按钮</strong> 只会出现在：</p>
+        <ul style="text-align: left; display: inline-block;">
+            <li>您以 <code>admin</code> 身份登录</li>
+            <li>用户列表中的其他用户旁边（不是自己）</li>
+            <li>需要点击右上角"在线用户"按钮打开用户列表才能看到</li>
+        </ul>
+    </div>
+    
+    <div class="demo-container">
+        <h2>🚀 立即测试</h2>
+        <p>点击下面的按钮开始测试：</p>
+        
+        <button class="open-btn" onclick="createTestEnv()">
+            🔧 创建测试环境
+        </button>
+        
+        <button class="open-btn" onclick="openMainApp()">
+            🎮 打开主应用
+        </button>
+        
+        <div id="status" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function demoKick(username) {
+            alert(`🎯 演示：正常情况下会弹出确认对话框：\n\n"确认要将用户 "${username}" 踢出房间吗？"\n\n在真实应用中，点击确定后该用户会被踢出房间。`);
+        }
+        
+        function createTestEnv() {
+            try {
+                const testData = {
+                    users: [
+                        {
+                            id: 'admin_' + Date.now(),
+                            name: 'admin',
+                            joinTime: Date.now()
+                        },
+                        {
+                            id: 'user1_' + Date.now(),
+                            name: 'testuser1',
+                            joinTime: Date.now() + 1000
+                        },
+                        {
+                            id: 'user2_' + Date.now(),
+                            name: 'testuser2',
+                            joinTime: Date.now() + 2000
+                        }
+                    ],
+                    shapes: [],
+                    currentMap: 'de_dust2',
+                    lastUpdate: Date.now()
+                };
+                
+                localStorage.setItem('room_cs_tactics', JSON.stringify(testData));
+                
+                document.getElementById('status').innerHTML = `
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; color: #2d7d32;">
+                        ✅ 测试环境创建成功！<br>
+                        现在点击"打开主应用"，用户名输入 <strong>admin</strong> 即可看到红色踢出按钮。
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML = `
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; color: #c62828;">
+                        ❌ 创建失败: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        function openMainApp() {
+            window.open('http://localhost:8080', '_blank');
+            
+            setTimeout(() => {
+                alert(`📝 操作步骤：
+
+1. 在新打开的页面中输入用户名：admin
+2. 点击"进入战术室"
+3. 进入后点击右上角的"在线用户"按钮
+4. 您应该看到其他用户旁边有红色的"踢出"按钮
+
+💡 如果没看到，请先点击"创建测试环境"按钮`);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

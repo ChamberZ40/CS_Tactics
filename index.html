@@ -41,29 +41,42 @@
             <div class="toolbar-row">
                 <div class="tool-group">
                     <label>工具:</label>
-                    <button class="tool-btn active" data-tool="move">移动</button>
-                    <button class="tool-btn" data-tool="playerT">T队员</button>
-                    <button class="tool-btn" data-tool="playerCT">CT队员</button>
-                    <button class="tool-btn" data-tool="line">画线</button>
-                    <button class="tool-btn grenade-btn" data-tool="smoke">💨 烟雾弹</button>
-                    <button class="tool-btn grenade-btn" data-tool="flash">⚡ 闪光弹</button>
-                    <button class="tool-btn grenade-btn" data-tool="fire">🔥 燃烧弹</button>
-                    <button class="tool-btn grenade-btn" data-tool="grenade">💣 手雷</button>
-                    <button class="tool-btn" data-tool="erase">橡皮擦</button>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" data-tool="move">移动</button>
+                        <button class="tool-btn" data-tool="playerT">T队员</button>
+                        <button class="tool-btn" data-tool="playerCT">CT队员</button>
+                        <button class="tool-btn" data-tool="line">画线</button>
+                        <button class="tool-btn" data-tool="erase">橡皮擦</button>
+                    </div>
                 </div>
             </div>
             
-            <!-- 第二排：地图选择和操作 -->
+            <!-- 第二排：手雷道具 -->
+            <div class="toolbar-row">
+                <div class="tool-group">
+                    <label>手雷道具:</label>
+                    <div class="tool-buttons">
+                        <button class="tool-btn grenade-btn" data-tool="smoke">💨 烟雾弹</button>
+                        <button class="tool-btn grenade-btn" data-tool="flash">⚡ 闪光弹</button>
+                        <button class="tool-btn grenade-btn" data-tool="fire">🔥 燃烧弹</button>
+                        <button class="tool-btn grenade-btn" data-tool="grenade">💣 手雷</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 第三排：地图选择和操作 -->
             <div class="toolbar-row">
                 <div class="tool-group">
                     <label>地图与操作:</label>
-                    <select id="mapSelect">
-                        <option value="de_dust2">de_dust2</option>
-                        <option value="de_mirage">de_mirage</option>
-                        <option value="de_inferno">de_inferno</option>
-                    </select>
-                    <button id="clearAllBtn">清空</button>
-                    <button id="exportBtn">导出PNG</button>
+                    <div class="tool-buttons">
+                        <select id="mapSelect">
+                            <option value="de_dust2">de_dust2</option>
+                            <option value="de_mirage">de_mirage</option>
+                            <option value="de_inferno">de_inferno</option>
+                        </select>
+                        <button id="clearAllBtn">清空</button>
+                        <button id="exportBtn">导出PNG</button>
+                    </div>
                 </div>
             </div>
         </div>

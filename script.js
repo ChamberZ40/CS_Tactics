@@ -54,17 +54,580 @@ class CSStrategyBoard {
     }
     
     init() {
+        console.log('😠 紧急修复工具栏显示问题...');
+        this.emergencyToolbarFix(); // 紧急修复
         this.bindEvents();
         this.loadMapImage();
         this.setupRealtimeSync();
+        this.setupToolbarScrollDetection(); // 添加工具栏滚动检测
+        this.setupContentOverflowWarning(); // 添加内容溢出警告系统
+        this.setupGlobalContentVisibilityMonitoring(); // 添加全局内容可见性监控
+    }
+    
+    // 紧急修复工具栏显示问题
+    emergencyToolbarFix() {
+        console.log('😡 正在执行最强力的工具栏修复...');
+        
+        const toolbar = document.getElementById('toolbar');
+        if (!toolbar) {
+            console.error('⚠️ 工具栏元素不存在！');
+            return;
+        }
+        
+        // 检测是否为移动端
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // 移动端：底部垂直布局，支持滚动
+            toolbar.style.cssText = `
+                display: flex !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: auto !important;
+                width: 100% !important;
+                height: 90px !important;
+                z-index: 10000 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                background: rgba(255, 255, 255, 0.98) !important;
+                backdrop-filter: blur(25px) !important;
+                border-top: 2px solid rgba(0, 122, 255, 0.3) !important;
+                border-left: none !important;
+                flex-direction: column !important;
+                padding: 8px 6px !important;
+                gap: 4px !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+                -webkit-overflow-scrolling: touch !important;
+                scroll-behavior: smooth !important;
+            `;
+            
+            // 移动端主内容区调整 - 占满整个屏幕
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.cssText = `
+                    position: fixed !important;
+                    top: 40px !important;
+                    bottom: 60px !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    width: 100% !important;
+                    display: flex !important;
+                    flex: 1 !important;
+                    overflow: hidden !important;
+                `;
+            }
+        } else {
+            // 桌面端：右侧垂直布局，上移位置
+            toolbar.style.cssText = `
+                display: flex !important;
+                position: fixed !important;
+                top: 40px !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                left: auto !important;
+                width: 220px !important;
+                height: auto !important;
+                z-index: 999999 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                backdrop-filter: blur(20px) !important;
+                border-left: 2px solid rgba(0, 122, 255, 0.3) !important;
+                flex-direction: column !important;
+                padding: 15px !important;
+                gap: 10px !important;
+                overflow-y: auto !important;
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1) !important;
+            `;
+            
+            // 桌面端主内容区调整
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.cssText = `
+                    position: fixed !important;
+                    top: 40px !important;
+                    bottom: 0 !important;
+                    left: 0 !important;
+                    right: 220px !important;
+                    display: flex !important;
+                    flex: 1 !important;
+                    overflow: hidden !important;
+                `;
+            }
+        }
+        
+        // 确保所有工具按钮可见
+        const toolButtons = toolbar.querySelectorAll('.tool-btn');
+        toolButtons.forEach(btn => {
+            btn.style.display = 'flex';
+            btn.style.visibility = 'visible';
+            btn.style.opacity = '1';
+        });
+        
+        // 确保所有工具组可见
+        const toolGroups = toolbar.querySelectorAll('.tool-group');
+        toolGroups.forEach(group => {
+            group.style.display = 'flex';
+            group.style.visibility = 'visible';
+            group.style.opacity = '1';
+        });
+        
+        // 确保所有工具栏行可见
+        const toolbarRows = toolbar.querySelectorAll('.toolbar-row');
+        toolbarRows.forEach(row => {
+            row.style.display = 'flex';
+            row.style.visibility = 'visible';
+            row.style.opacity = '1';
+        });
+        
+        console.log(`✅ 超级强力修复完成！${isMobile ? '移动端底部' : '桌面端右侧'}工具栏绝对显示`);
     }
     
     setupRealtimeSync() {
         this.realtimeSync.setCallbacks({
             onRoomUpdate: (roomData) => {
                 this.handleRealtimeUpdate(roomData);
+            },
+            onUserJoin: (userData) => {
+                console.log(`👋 新用户加入: ${userData.user ? userData.user.name : '未知用户'}`);
+                this.showNotification(`${userData.user ? userData.user.name : '用户'} 加入了房间`, 'info');
+            },
+            onUserLeave: (userData) => {
+                console.log(`🚪 用户离开: ${userData.userName || userData.userId}`);
+                this.showNotification(`${userData.userName || '用户'} 离开了房间`, 'info');
             }
         });
+    }
+    
+    // 设置工具栏滚动检测，确保所有内容可见
+    setupToolbarScrollDetection() {
+        const toolbar = document.getElementById('toolbar');
+        if (!toolbar) return;
+        
+        // 增强的滚动能力检测函数
+        const checkScrollability = () => {
+            const isVerticalScrollable = toolbar.scrollHeight > toolbar.clientHeight;
+            const isHorizontalScrollable = toolbar.scrollWidth > toolbar.clientWidth;
+            const hasOverflow = isVerticalScrollable || isHorizontalScrollable;
+            
+            // 设置滚动相关的CSS类
+            if (hasOverflow) {
+                toolbar.classList.add('scrollable', 'has-scroll');
+            } else {
+                toolbar.classList.remove('scrollable', 'has-scroll');
+            }
+            
+            // 记录详细的滚动状态信息
+            console.log('📊 工具栏内容状态检测:', {
+                工具栏实际高度: toolbar.scrollHeight,
+                工具栏显示高度: toolbar.clientHeight,
+                工具栏实际宽度: toolbar.scrollWidth,
+                工具栏显示宽度: toolbar.clientWidth,
+                需要垂直滚动: isVerticalScrollable,
+                需要水平滚动: isHorizontalScrollable,
+                总滚动状态: hasOverflow ? '需要滚动' : '无需滚动',
+                子元素数量: toolbar.children.length
+            });
+            
+            // 如果需要滚动，显示提示信息
+            if (hasOverflow) {
+                console.log('✅ 工具栏内容可滚动，所有内容均可访问');
+            }
+            
+            // 确保滚动指示器正确显示
+            updateScrollIndicators();
+        };
+        
+        // 增强的滚动指示器更新函数
+        const updateScrollIndicators = () => {
+            const scrollTop = toolbar.scrollTop;
+            const scrollLeft = toolbar.scrollLeft;
+            const maxScrollTop = toolbar.scrollHeight - toolbar.clientHeight;
+            const maxScrollLeft = toolbar.scrollWidth - toolbar.clientWidth;
+            
+            // 更加精确的滚动指示器显示逻辑
+            const shouldShowTopIndicator = maxScrollTop > 5 && scrollTop > 5;
+            const shouldShowBottomIndicator = maxScrollTop > 5 && scrollTop < (maxScrollTop - 5);
+            const shouldShowLeftIndicator = maxScrollLeft > 5 && scrollLeft > 5;
+            const shouldShowRightIndicator = maxScrollLeft > 5 && scrollLeft < (maxScrollLeft - 5);
+            
+            if (shouldShowTopIndicator || shouldShowBottomIndicator || shouldShowLeftIndicator || shouldShowRightIndicator) {
+                toolbar.classList.add('has-scroll');
+            } else if (maxScrollTop <= 5 && maxScrollLeft <= 5) {
+                toolbar.classList.remove('has-scroll');
+            }
+        };
+        
+        // 初始检测（多次检测确保准确性）
+        setTimeout(checkScrollability, 50);
+        setTimeout(checkScrollability, 150);
+        setTimeout(checkScrollability, 300);
+        
+        // 窗口大小改变时重新检测（防抖处理）
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                checkScrollability();
+                console.log('📱 窗口大小改变，重新检测工具栏滚动状态');
+            }, 100);
+        });
+        
+        // 工具栏内容改变时重新检测（增强版）
+        const observer = new MutationObserver((mutations) => {
+            let shouldRecheck = false;
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList' || 
+                    (mutation.type === 'attributes' && 
+                     ['class', 'style'].includes(mutation.attributeName))) {
+                    shouldRecheck = true;
+                }
+            });
+            
+            if (shouldRecheck) {
+                setTimeout(checkScrollability, 50);
+                console.log('🔄 工具栏内容发生变化，重新检测滚动状态');
+            }
+        });
+        
+        observer.observe(toolbar, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style', 'hidden']
+        });
+        
+        // 增强的滚动事件监听，提供实时视觉反馈
+        let scrollTimeout;
+        toolbar.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            updateScrollIndicators();
+            
+            // 设置防抖的滚动状态检测
+            scrollTimeout = setTimeout(() => {
+                checkScrollability();
+            }, 150);
+        }, { passive: true }); // 使用被动监听优化性能
+        
+        // 添加键盘导航支持，确保可访问性
+        toolbar.addEventListener('keydown', (e) => {
+            const scrollAmount = 50;
+            switch (e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    toolbar.scrollTop -= scrollAmount;
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    toolbar.scrollTop += scrollAmount;
+                    break;
+                case 'PageUp':
+                    e.preventDefault();
+                    toolbar.scrollTop -= toolbar.clientHeight * 0.8;
+                    break;
+                case 'PageDown':
+                    e.preventDefault();
+                    toolbar.scrollTop += toolbar.clientHeight * 0.8;
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    toolbar.scrollTop = 0;
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    toolbar.scrollTop = toolbar.scrollHeight;
+                    break;
+            }
+            updateScrollIndicators();
+        });
+        
+        // 设置工具栏为可聚焦，支持键盘导航
+        if (!toolbar.getAttribute('tabindex')) {
+            toolbar.setAttribute('tabindex', '0');
+        }
+        
+        console.log('✅ 增强版工具栏滚动检测设置完成，支持键盘导航');
+    }
+    
+    // 设置内容溢出警告系统，确保用户知道所有内容都可访问
+    setupContentOverflowWarning() {
+        const toolbar = document.getElementById('toolbar');
+        if (!toolbar) return;
+        
+        // 创建滚动提示元素
+        const createScrollHint = () => {
+            let scrollHint = document.getElementById('scroll-hint');
+            if (!scrollHint) {
+                scrollHint = document.createElement('div');
+                scrollHint.id = 'scroll-hint';
+                scrollHint.innerHTML = `
+                    <div class="scroll-hint-content">
+                        <span class="scroll-icon">↕️</span>
+                        <span class="scroll-text">工具栏可滚动查看更多内容</span>
+                        <span class="scroll-close" onclick="this.parentElement.parentElement.style.display='none'">×</span>
+                    </div>
+                `;
+                scrollHint.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    right: 220px;
+                    transform: translateY(-50%);
+                    z-index: 9999;
+                    background: linear-gradient(135deg, #007aff, #0051d5);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+                    animation: fadeInOut 3s ease-in-out;
+                    pointer-events: auto;
+                    cursor: pointer;
+                    max-width: 200px;
+                    text-align: center;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    backdrop-filter: blur(10px);
+                `;
+                
+                // 添加动画样式
+                if (!document.getElementById('scroll-hint-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'scroll-hint-styles';
+                    style.textContent = `
+                        @keyframes fadeInOut {
+                            0% { opacity: 0; transform: translateY(-50%) scale(0.9); }
+                            10% { opacity: 1; transform: translateY(-50%) scale(1); }
+                            90% { opacity: 1; transform: translateY(-50%) scale(1); }
+                            100% { opacity: 0; transform: translateY(-50%) scale(0.9); }
+                        }
+                        .scroll-hint-content {
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                        }
+                        .scroll-icon {
+                            font-size: 14px;
+                            animation: bounce 1s infinite alternate;
+                        }
+                        .scroll-close {
+                            margin-left: auto;
+                            cursor: pointer;
+                            font-size: 16px;
+                            opacity: 0.8;
+                            transition: opacity 0.2s;
+                        }
+                        .scroll-close:hover {
+                            opacity: 1;
+                        }
+                        @keyframes bounce {
+                            from { transform: translateY(-2px); }
+                            to { transform: translateY(2px); }
+                        }
+                        @media (max-width: 768px) {
+                            #scroll-hint {
+                                right: 10px !important;
+                                max-width: 150px !important;
+                                font-size: 10px !important;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(scrollHint);
+                
+                // 3秒后自动隐藏
+                setTimeout(() => {
+                    if (scrollHint && scrollHint.parentNode) {
+                        scrollHint.style.display = 'none';
+                    }
+                }, 3000);
+            }
+            return scrollHint;
+        };
+        
+        // 检查内容是否溢出并显示提示
+        const checkContentOverflow = () => {
+            const hasVerticalOverflow = toolbar.scrollHeight > toolbar.clientHeight + 5;
+            const hasHorizontalOverflow = toolbar.scrollWidth > toolbar.clientWidth + 5;
+            
+            if (hasVerticalOverflow || hasHorizontalOverflow) {
+                // 只在第一次检测到溢出时显示提示
+                if (!toolbar.dataset.overflowWarningShown) {
+                    createScrollHint();
+                    toolbar.dataset.overflowWarningShown = 'true';
+                    console.log('⚠️ 检测到工具栏内容溢出，已显示滚动提示');
+                }
+            }
+        };
+        
+        // 初始检查
+        setTimeout(checkContentOverflow, 500);
+        
+        // 窗口大小改变时重新检查
+        window.addEventListener('resize', () => {
+            setTimeout(checkContentOverflow, 200);
+        });
+        
+        console.log('✅ 内容溢出警告系统设置完成');
+    }
+    
+    // 全局内容可见性监控系统，确保所有内容始终可访问且不被挤压
+    setupGlobalContentVisibilityMonitoring() {
+        // 强化工具栏保护机制
+        const forceToolbarVisibility = () => {
+            const toolbar = document.getElementById('toolbar');
+            if (!toolbar) return;
+            
+            // 确保工具栏始终可见且不被挤压
+            const style = window.getComputedStyle(toolbar);
+            
+            // 检查并修复显示问题
+            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+                console.log('🔧 强制修复工具栏显示问题');
+                toolbar.style.display = 'flex';
+                toolbar.style.visibility = 'visible';
+                toolbar.style.opacity = '1';
+            }
+            
+            // 确保工具栏有正确的层级
+            const zIndex = parseInt(style.zIndex) || 0;
+            if (zIndex < 9999) {
+                toolbar.style.zIndex = '9999';
+                console.log('🔧 修复工具栏层级问题');
+            }
+            
+            // 确保工具栏宽度/高度不被挤压
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                // 移动端检查高度
+                const minHeight = 80; // 最小高度
+                if (toolbar.offsetHeight < minHeight) {
+                    toolbar.style.height = minHeight + 'px';
+                    toolbar.style.minHeight = minHeight + 'px';
+                    console.log('🔧 修复移动端工具栏高度被挤压问题');
+                }
+            } else {
+                // 桌面端检查宽度
+                const minWidth = 200; // 最小宽度
+                if (toolbar.offsetWidth < minWidth) {
+                    toolbar.style.width = minWidth + 'px';
+                    toolbar.style.minWidth = minWidth + 'px';
+                    console.log('🔧 修复桌面端工具栏宽度被挤压问题');
+                }
+            }
+            
+            // 确保工具按钮不被挤压
+            const toolButtons = toolbar.querySelectorAll('.tool-btn');
+            toolButtons.forEach((btn, index) => {
+                const btnStyle = window.getComputedStyle(btn);
+                if (btnStyle.display === 'none' || btnStyle.visibility === 'hidden') {
+                    btn.style.display = 'flex';
+                    btn.style.visibility = 'visible';
+                    console.log(`🔧 修复工具按钮 ${index + 1} 被隐藏问题`);
+                }
+            });
+        };
+        
+        // 监控所有关键元素的可见性
+        const monitorElements = () => {
+            const elementsToMonitor = [
+                { selector: '#toolbar', name: '工具栏' },
+                { selector: '.top-bar', name: '顶部栏' },
+                { selector: '.main-content', name: '主内容区' },
+                { selector: '.canvas-container', name: '地图区域' }
+            ];
+            
+            elementsToMonitor.forEach(({ selector, name }) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    const isVisible = rect.width > 0 && rect.height > 0;
+                    const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+                    
+                    if (!isVisible || !isInViewport) {
+                        console.warn(`⚠️ ${name}可能不可见:`, {
+                            元素: selector,
+                            尺寸: { 宽度: rect.width, 高度: rect.height },
+                            位置: { 顶部: rect.top, 底部: rect.bottom },
+                            窗口高度: window.innerHeight,
+                            建议: '请检查CSS布局或尝试滚动页面'
+                        });
+                    }
+                }
+            });
+        };
+        
+        // 检查是否有内容被裁切或挤压
+        const checkContentCompression = () => {
+            const toolbar = document.getElementById('toolbar');
+            if (!toolbar) return;
+            
+            const toolGroups = toolbar.querySelectorAll('.tool-group');
+            let compressedGroups = 0;
+            
+            toolGroups.forEach((group, index) => {
+                const rect = group.getBoundingClientRect();
+                const toolbarRect = toolbar.getBoundingClientRect();
+                
+                // 检查工具组是否被挤压
+                if (rect.right > toolbarRect.right || rect.bottom > toolbarRect.bottom) {
+                    compressedGroups++;
+                    console.log(`📊 工具组 ${index + 1} 被挤压，需要滚动查看`);
+                }
+                
+                // 检查工具组内的按钮是否被挤压
+                const buttons = group.querySelectorAll('.tool-btn');
+                buttons.forEach((btn, btnIndex) => {
+                    const btnRect = btn.getBoundingClientRect();
+                    if (btnRect.width < 20 || btnRect.height < 15) { // 最小可点击尺寸
+                        console.warn(`⚠️ 工具按钮 ${btnIndex + 1} 被过度挤压`);
+                    }
+                });
+            });
+            
+            if (compressedGroups > 0) {
+                console.log(`ℹ️ 总计 ${compressedGroups} 个工具组被挤压，工具栏可滚动`);
+            }
+        };
+        
+        // 综合监控和修复
+        const comprehensiveMonitoring = () => {
+            forceToolbarVisibility(); // 强制保证工具栏可见
+            monitorElements();
+            checkContentCompression();
+        };
+        
+        // 初始监控
+        setTimeout(comprehensiveMonitoring, 500);
+        
+        // 高频监控（每2秒）
+        setInterval(comprehensiveMonitoring, 2000);
+        
+        // 窗口大小改变时立即检查
+        window.addEventListener('resize', () => {
+            setTimeout(comprehensiveMonitoring, 100);
+        });
+        
+        // 屏幕方向改变时检查
+        window.addEventListener('orientationchange', () => {
+            setTimeout(comprehensiveMonitoring, 300);
+        });
+        
+        // 页面可见性改变时检查
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(comprehensiveMonitoring, 100);
+            }
+        });
+        
+        console.log('✅ 增强版全局内容可见性监控系统已启动，包含防挤压保护');
     }
     
     handleRealtimeUpdate(roomData) {
@@ -164,6 +727,78 @@ class CSStrategyBoard {
         }
         
         console.log('事件绑定完成');
+        
+        // 添加页面关闭和退出监听器
+        this.setupPageUnloadListeners();
+    }
+    
+    // 设置页面卸载监听器
+    setupPageUnloadListeners() {
+        // 监听页面关闭事件
+        window.addEventListener('beforeunload', (event) => {
+            console.log('🖼️ 用户即将关闭页面，准备从用户列表中移除...');
+            this.handleUserLeaving();
+        });
+        
+        // 监听页面隐藏事件（用于移动端切换应用）
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('😵 页面被隐藏，用户可能切换了应用');
+                // 延迟一会再移除，防止短暂切换
+                setTimeout(() => {
+                    if (document.hidden && this.currentUser) {
+                        console.log('🖼️ 页面持续隐藏，从用户列表中移除用户');
+                        this.handleUserLeaving();
+                    }
+                }, 30000); // 30秒后如果还是隐藏状态就移除用户
+            } else {
+                console.log('👁️ 页面重新可见，用户回来了');
+                // 用户回来时重新添加到用户列表
+                if (this.currentUser) {
+                    this.addUserToRoom();
+                }
+            }
+        });
+        
+        // 监听窗口获得和失去焦点
+        window.addEventListener('focus', () => {
+            console.log('👁️ 窗口获得焦点，用户正在使用应用');
+            if (this.currentUser) {
+                this.addUserToRoom(); // 重新添加用户到列表
+            }
+        });
+        
+        window.addEventListener('blur', () => {
+            console.log('😵 窗口失去焦点，用户可能切换到其他应用');
+            // 不立即移除，因为可能只是短暂切换
+        });
+        
+        // 移动端特殊处理：监听pagehide事件
+        window.addEventListener('pagehide', (event) => {
+            console.log('🖼️ 页面被隐藏或卸载（移动端），从用户列表中移除');
+            this.handleUserLeaving();
+        });
+        
+        console.log('✅ 页面关闭和退出监听器设置完成');
+    }
+    
+    // 处理用户离开
+    handleUserLeaving() {
+        if (this.currentUser && this.roomId) {
+            console.log(`🚪 用户 ${this.currentUser.name} 正在离开房间...`);
+            
+            // 从用户列表中移除
+            this.removeUserFromRoom();
+            
+            // 广播用户离开事件
+            this.realtimeSync.broadcast('user_leave', {
+                userId: this.currentUser.id,
+                userName: this.currentUser.name,
+                timestamp: Date.now()
+            });
+            
+            console.log(`✅ 用户 ${this.currentUser.name} 已从用户列表中移除`);
+        }
     }
     
     // 加入房间
@@ -231,6 +866,16 @@ class CSStrategyBoard {
     // 离开房间
     leaveRoom() {
         if (this.roomId && this.currentUser) {
+            console.log(`🚪 用户 ${this.currentUser.name} 正常离开房间`);
+            
+            // 广播用户离开事件
+            this.realtimeSync.broadcast('user_leave', {
+                userId: this.currentUser.id,
+                userName: this.currentUser.name,
+                timestamp: Date.now()
+            });
+            
+            // 从房间移除用户
             this.removeUserFromRoom();
         }
         
@@ -240,6 +885,8 @@ class CSStrategyBoard {
         this.users.clear();
         
         this.showLoginScreen();
+        
+        console.log('✅ 已成功离开房间并返回登录界面');
     }
     
     // 更新房间信息显示
@@ -545,6 +1192,14 @@ class CSStrategyBoard {
         // 更新用户列表
         this.users = new Map(roomData.users.map(u => [u.id, u]));
         this.updateUsersList();
+        
+        // 广播用户加入事件
+        this.realtimeSync.broadcast('user_join', {
+            user: this.currentUser,
+            timestamp: Date.now()
+        });
+        
+        console.log(`👋 用户 ${this.currentUser.name} 已加入房间`);
     }
     
     // 从房间移除用户
@@ -652,7 +1307,7 @@ class CSStrategyBoard {
         
         switch (shape.type) {
             case 'player':
-                const playerRadius = 15;
+                const playerRadius = 12; // 从15缩小到12，让队员图标更紧凑
                 this.ctx.beginPath();
                 this.ctx.arc(shape.x, shape.y, playerRadius, 0, Math.PI * 2);
                 this.ctx.fillStyle = shape.side === 'T' ? '#ff4444' : '#4444ff';
@@ -662,9 +1317,9 @@ class CSStrategyBoard {
                 this.ctx.stroke();
                 
                 this.ctx.fillStyle = '#ffffff';
-                this.ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, sans-serif';
+                this.ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif'; // 略微减小字体
                 this.ctx.textAlign = 'center';
-                this.ctx.fillText(shape.side, shape.x, shape.y + 4);
+                this.ctx.fillText(shape.side, shape.x, shape.y + 3); // 调整文字位置
                 break;
                 
             case 'line':
@@ -677,7 +1332,7 @@ class CSStrategyBoard {
                 break;
                 
             case 'smoke':
-                const smokeRadius = 20;
+                const smokeRadius = 16; // 从20缩小到16，让烟雾弹图标更紧凑
                 this.ctx.beginPath();
                 this.ctx.arc(shape.x, shape.y, smokeRadius, 0, Math.PI * 2);
                 this.ctx.fillStyle = 'rgba(128, 128, 128, 0.7)';
@@ -687,13 +1342,13 @@ class CSStrategyBoard {
                 this.ctx.stroke();
                 
                 this.ctx.fillStyle = '#ffffff';
-                this.ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, sans-serif';
+                this.ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, sans-serif'; // 略微减小字体
                 this.ctx.textAlign = 'center';
-                this.ctx.fillText('烟', shape.x, shape.y + 5);
+                this.ctx.fillText('烟', shape.x, shape.y + 4);
                 break;
                 
             case 'flash':
-                const flashRadius = 12;
+                const flashRadius = 10; // 从12缩小到10，让闪光弹图标更紧凑
                 this.ctx.beginPath();
                 this.ctx.arc(shape.x, shape.y, flashRadius, 0, Math.PI * 2);
                 this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
@@ -703,13 +1358,13 @@ class CSStrategyBoard {
                 this.ctx.stroke();
                 
                 this.ctx.fillStyle = '#000000';
-                this.ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+                this.ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, sans-serif'; // 略微减小字体
                 this.ctx.textAlign = 'center';
                 this.ctx.fillText('闪', shape.x, shape.y + 3);
                 break;
                 
             case 'fire':
-                const fireRadius = 18;
+                const fireRadius = 14; // 从18缩小到14，让燃烧弹图标更紧凑
                 this.ctx.beginPath();
                 this.ctx.arc(shape.x, shape.y, fireRadius, 0, Math.PI * 2);
                 this.ctx.fillStyle = 'rgba(255, 69, 0, 0.7)';
@@ -719,13 +1374,13 @@ class CSStrategyBoard {
                 this.ctx.stroke();
                 
                 this.ctx.fillStyle = '#ffffff';
-                this.ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, sans-serif';
+                this.ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, sans-serif'; // 略微减小字体
                 this.ctx.textAlign = 'center';
-                this.ctx.fillText('火', shape.x, shape.y + 4);
+                this.ctx.fillText('火', shape.x, shape.y + 3); // 调整文字位置
                 break;
                 
             case 'grenade':
-                const grenadeRadius = 14;
+                const grenadeRadius = 12; // 从14缩小到12，让手雷图标更紧凑
                 this.ctx.beginPath();
                 this.ctx.arc(shape.x, shape.y, grenadeRadius, 0, Math.PI * 2);
                 this.ctx.fillStyle = 'rgba(34, 139, 34, 0.7)';
@@ -735,7 +1390,7 @@ class CSStrategyBoard {
                 this.ctx.stroke();
                 
                 this.ctx.fillStyle = '#ffffff';
-                this.ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, sans-serif';
+                this.ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, sans-serif'; // 略微减小字体
                 this.ctx.textAlign = 'center';
                 this.ctx.fillText('雷', shape.x, shape.y + 3);
                 break;
@@ -988,6 +1643,25 @@ class CSStrategyBoard {
 let csBoard;
 window.addEventListener('DOMContentLoaded', () => {
     console.log('DOM加载完成，初始化CS战术板...');
+    
+    // 立即强制修复工具栏
+    const emergencyFix = () => {
+        const toolbar = document.getElementById('toolbar');
+        if (toolbar) {
+            toolbar.style.display = 'flex';
+            toolbar.style.position = 'fixed';
+            toolbar.style.zIndex = '99999';
+            toolbar.style.visibility = 'visible';
+            toolbar.style.opacity = '1';
+            toolbar.style.pointerEvents = 'auto';
+            console.log('🚑 立即修复工具栏显示问题');
+        }
+    };
+    
+    emergencyFix();
+    setTimeout(emergencyFix, 100);
+    setTimeout(emergencyFix, 500);
+    
     try {
         csBoard = new CSStrategyBoard();
         console.log('CS战术板初始化成功');

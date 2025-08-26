@@ -98,10 +98,44 @@ class RealtimeSync {
             case 'map_change':
                 roomData.currentMap = data;
                 break;
+            case 'user_join':
+                // 用户加入事件处理
+                if (data && data.user) {
+                    const existingUserIndex = roomData.users.findIndex(u => u.id === data.user.id);
+                    if (existingUserIndex >= 0) {
+                        roomData.users[existingUserIndex] = data.user;
+                    } else {
+                        roomData.users.push(data.user);
+                    }
+                    console.log(`👋 用户 ${data.user.name} 加入了房间`);
+                }
+                break;
+            case 'user_leave':
+                // 用户离开事件处理
+                if (data && data.userId) {
+                    const originalCount = roomData.users.length;
+                    roomData.users = roomData.users.filter(u => u.id !== data.userId);
+                    const newCount = roomData.users.length;
+                    
+                    if (originalCount > newCount) {
+                        console.log(`🚪 用户 ${data.userName || data.userId} 离开了房间`);
+                        
+                        // 触发用户离开回调
+                        if (this.callbacks.onUserLeave) {
+                            this.callbacks.onUserLeave(data);
+                        }
+                    }
+                }
+                break;
         }
         
         roomData.lastUpdate = Date.now();
         localStorage.setItem(`room_${this.roomId}`, JSON.stringify(roomData));
+        
+        // 立即触发更新检查
+        setTimeout(() => {
+            this.checkForUpdates();
+        }, 100);
     }
 }
 
